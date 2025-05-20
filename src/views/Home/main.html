@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+
+<style>
+    .systemContainer {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+</style>
+
+
+<body class="gray-bg">
+
+<div id="systemContainer" class="systemContainer">
+    <!-- 系统登录区域将通过Ajax动态生成 -->
+</div>
+
+<div>
+
+</div>
+<!-- 添加Font Awesome图标库 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+</body>
+</html>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+
+    $(function () {
+        //对首页进行初始化
+        $.ajax({
+            url: '/dj',
+            type: 'GET',
+            contentType: 'application/json',
+            success: function (response) {
+                console.log(response);
+                // 假设response是一个包含系统列表的数组
+                renderSystemBlocks(response.data);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+
+        // renderSystemBlocks([
+        // {sysName: '人力资源管理系统', sysUrl: 'http://www.mes.com', username: 'admin', password: '123456',sysLogUrl:'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg'},
+        // {sysName: 'TTT', sysUrl: 'http://www.mes.com', username: 'admin', password: '123456',sysLogUrl:'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg'},
+        // {sysName: 'EEE', sysUrl: 'http://www.mes.com', username: 'admin', password: '123456',sysLogUrl:'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg'}
+        // ]);
+
+        $.ajax({
+            url: '/dj/test/oracle',
+            type: 'GET',
+            contentType: 'application/json',
+            success: function (response) {
+                console.log(response);
+                // 假设response是一个包含系统列表的数组
+                renderSystemBlocks(response.data);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+
+    });
+
+
+    // 渲染系统登录区块
+    function renderSystemBlocks(systems) {
+        var container = $("#systemContainer");
+        container.empty(); // 清空容器
+        // 遍历系统数据并创建对应的div
+        $.each(systems, function (index, system) {
+            var systemDiv = $('<div>')
+                .attr('sysUrl', system.sysUrl)
+                .attr('sysName', system.sysName)
+                .css({
+                    'display': 'inline-block',
+                    'background-color': '#ffffff',
+                    'width': '200px',
+                    'height': '150px',
+                    'color': '#333333',
+                    'margin': '20px',
+                    'border-radius': '8px',
+                    'box-shadow': '0 4px 8px rgba(0,0,0,0.1)',
+                    'cursor': 'pointer',
+                    'transition': 'all 0.3s ease',
+                    'text-align': 'center',
+                    'display': 'flex',
+                    'flex-direction': 'column',
+                    'justify-content': 'center',
+                    'align-items': 'center',
+                    'padding': '10px',
+                    'position': 'relative',
+                    'border': '1px solid #e8e8e8'
+                })
+                .hover(
+                    function () {
+                        $(this).css({
+                            'transform': 'translateY(-5px)',
+                            'box-shadow': '0 8px 16px rgba(0,0,0,0.15)'
+                        });
+                    },
+                    function () {
+                        $(this).css({
+                            'transform': 'translateY(0)',
+                            'box-shadow': '0 4px 8px rgba(0,0,0,0.1)'
+                        });
+                    }
+                )
+                .click(function (e) {
+                    // 如果点击的是设置按钮，不触发登录
+                    if ($(e.target).hasClass('settings-btn') || $(e.target).closest('.settings-btn').length) {
+                        return;
+                    }
+                    handleSystemLogin(system);
+                });
+
+            // 添加Logo
+            if (system.sysLogUrl) {
+                var logoContainer = $('<div>').css({
+                    'margin-bottom': '15px',
+                    'width': '60px',
+                    'height': '60px',
+                    'border-radius': '8px',
+                    'overflow': 'hidden',
+                    'display': 'flex',
+                    'justify-content': 'center',
+                    'align-items': 'center',
+                    'background-color': 'transparent'
+                });
+
+                var logoImg = $('<img>')
+                    .attr('src', system.sysLogUrl)
+                    .attr('alt', system.sysName + ' Logo')
+                    .css({
+                        'width': '100%',
+                        'height': '100%',
+                        'object-fit': 'cover',
+                        'border-radius': '8px'
+                    });
+
+                logoContainer.append(logoImg);
+                systemDiv.append(logoContainer);
+            }
+
+            // 创建系统名称元素
+            var nameElement = $('<h3>').text(system.sysName || '未命名系统').css({
+                'margin': '0',
+                'padding': '0',
+                'font-size': '18px',
+                'color': '#333333',
+                'font-weight': 'normal'
+            });
+
+            // 如果系统需要target="_blank"的链接
+            if (system.needBlankTarget) {
+                var linkElement = $('<a>')
+                    .attr('target', '_blank')
+                    .attr('href', 'javascript:void(0)')
+                    .css({
+                        'color': '#333333',
+                        'text-decoration': 'none'
+                    })
+                    .append(nameElement);
+                systemDiv.append(linkElement);
+            } else {
+                systemDiv.append(nameElement);
+            }
+
+            // 添加系统描述（如果有）
+            if (system.description) {
+                systemDiv.append(
+                    $('<p>').text(system.description).css({
+                        'margin-top': '10px',
+                        'font-size': '14px',
+                        'color': '#666666'
+                    })
+                );
+            }
+
+            // 添加设置按钮
+            var settingsBtn = $('<div>')
+                .addClass('settings-btn')
+                .html('<i class="fa fa-cog"></i>')
+                .css({
+                    'position': 'absolute',
+                    'bottom': '10px',
+                    'right': '10px',
+                    'width': '24px',
+                    'height': '24px',
+                    'display': 'flex',
+                    'justify-content': 'center',
+                    'align-items': 'center',
+                    'cursor': 'pointer',
+                    'z-index': '10',
+                    'color': '#999999',
+                    'font-size': '16px',
+                    'transition': 'color 0.3s ease'
+                })
+                .hover(
+                    function () {
+                        $(this).css('color', '#333333');
+                    },
+                    function () {
+                        $(this).css('color', '#999999');
+                    }
+                )
+                .click(function (e) {
+                    e.stopPropagation(); // 阻止事件冒泡
+                    showCredentialsModal(system);
+                });
+
+            systemDiv.append(settingsBtn);
+            container.append(systemDiv);
+        });
+    }
+
+    // 显示修改账号密码的弹框
+    function showCredentialsModal(system) {
+        // 如果已存在弹框，先移除
+        $('#credentialsModal').remove();
+
+        // 创建弹框
+        var modal = $('<div>')
+            .attr('id', 'credentialsModal')
+            .css({
+                'position': 'fixed',
+                'top': '0',
+                'left': '0',
+                'width': '100%',
+                'height': '100%',
+                'background-color': 'rgba(0, 0, 0, 0.5)',
+                'display': 'flex',
+                'justify-content': 'center',
+                'align-items': 'center',
+                'z-index': '1000'
+            });
+
+        // 创建弹框内容
+        var modalContent = $('<div>')
+            .css({
+                'background-color': 'white',
+                'padding': '20px',
+                'border-radius': '8px',
+                'width': '300px',
+                'color': '#333'
+            });
+
+        // 添加标题
+        modalContent.append(
+            $('<h3>').text('修改 ' + (system.sysName || '系统') + ' 的账号密码').css({
+                'margin-top': '0',
+                'margin-bottom': '20px',
+                'text-align': 'center'
+            })
+        );
+
+        // 添加表单
+        var form = $('<form>').attr('id', 'credentialsForm');
+
+        // 账号输入框
+        form.append(
+            $('<div>').css('margin-bottom', '15px').append(
+                $('<label>').text('账号：').css('display', 'block'),
+                $('<input>').attr({
+                    'type': 'text',
+                    'id': 'modalUsername',
+                    'value': system.userName || '',
+                    'autocomplete': 'nope',
+                    'name': "fakeUserName"
+                }).css({
+                    'width': '100%',
+                    'padding': '8px',
+                    'box-sizing': 'border-box',
+                    'border': '1px solid #ddd',
+                    'border-radius': '4px'
+                })
+            )
+        );
+
+        // 密码输入框
+        form.append(
+            $('<div>').css({
+                'margin-bottom': '15px',
+                'position': 'relative'
+            }).append(
+                $('<label>').text('密码：').css('display', 'block'),
+                $('<input>').attr({
+                    'type': 'password',
+                    'id': 'modalPassword',
+                    'value': system.password || '',
+                    'autocomplete': 'new-password',
+                    'name': "fakePassword"
+                }).css({
+                    'width': '100%',
+                    'padding': '8px',
+                    'box-sizing': 'border-box',
+                    'border': '1px solid #ddd',
+                    'border-radius': '4px'
+                }),
+                $('<span>').html('<i class="fa fa-eye-slash"></i>').css({
+                    'position': 'absolute',
+                    'right': '10px',
+                    'top': '32px',
+                    'cursor': 'pointer',
+                    'color': '#999999',
+                    'transition': 'color 0.3s ease'
+                }).hover(
+                    function () {
+                        $(this).css('color', '#333333');
+                    },
+                    function () {
+                        $(this).css('color', '#999999');
+                    }
+                ).click(function () {
+                    var passwordInput = $('#modalPassword');
+                    var icon = $(this).find('i');
+
+                    if (passwordInput.attr('type') === 'password') {
+                        passwordInput.attr('type', 'text');
+                        icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                    } else {
+                        passwordInput.attr('type', 'password');
+                        icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                    }
+                })
+            )
+        );
+
+        // 按钮区域
+        var buttonArea = $('<div>').css({
+            'display': 'flex',
+            'justify-content': 'space-between',
+            'margin-top': '20px'
+        });
+
+        // 取消按钮
+        buttonArea.append(
+            $('<button>').text('取消').css({
+                'padding': '8px 15px',
+                'background-color': '#f2f2f2',
+                'border': 'none',
+                'border-radius': '4px',
+                'cursor': 'pointer'
+            }).click(function (e) {
+                e.preventDefault();
+                $('#credentialsModal').remove();
+            })
+        );
+
+        // 保存按钮
+        buttonArea.append(
+            $('<button>').text('保存').css({
+                'padding': '8px 15px',
+                'background-color': '#5bc0de',
+                'color': 'white',
+                'border': 'none',
+                'border-radius': '4px',
+                'cursor': 'pointer'
+            }).click(function (e) {
+                e.preventDefault();
+                saveCredentials(system);
+            })
+        );
+
+        form.append(buttonArea);
+        modalContent.append(form);
+        modal.append(modalContent);
+        $('body').append(modal);
+    }
+
+    // 保存账号密码
+    function saveCredentials(system) {
+        var userName = $('#modalUsername').val();
+        var password = $('#modalPassword').val();
+
+        // 更新系统对象
+        system.userName = userName;
+        system.password = password;
+
+        $.ajax({
+            url: '/dj/register',
+            type: 'POST',
+            contentType: "application/json",
+            data: JSON.stringify({userName: userName, password: password, sysId: system.sysId}),
+            success: function (response) {
+                console.log(response)
+                // 关闭弹框
+                $('#credentialsModal').remove();
+                // 显示保存成功提示
+                alert('账号密码已更新');
+            },
+            error: function (error) {
+                console.log(error)
+            }
+        })
+
+
+    }
+
+    // 处理不同系统的登录逻辑
+    function handleSystemLogin(system) {
+
+        var userName = $('#modalUsername').val();
+        var password = $('#modalPassword').val();
+
+        switch (system.sysName) {
+            case '澳美MES':
+                // MES登录逻辑
+                $.ajax({
+                    url: '/system/user/mesautologin',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        username: system.userName == null ? userName : system.userName,
+                        password: system.password == null ? password : system.password
+                    }),
+                    success: function (response) {
+                        window.open("http://58.220.114.70:9900/login?tenant-id=158&token=" + response.msg, "_blank");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('提交失败:', error);
+                    }
+                });
+                break;
+
+            case '智源MES':
+                // iMES登录逻辑
+                var appId = system.userName == null ? userName : system.userName;
+                var account = system.password == null ? password : system.password;
+                $.ajax({
+                    url: '/iMES/getZYAccessToken',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: JSON.stringify({appId: appId, account: account}),
+                    success: function (response) {
+                        window.open("http://192.168.127.17/outside/oauth_login/action:login/access_token:" + response.msg, "_blank");
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+                break;
+
+            case '东合MES':
+                // iMES登录逻辑
+                var appId = system.userName == null ? userName : system.userName;
+                var account = system.password == null ? password : system.password;
+                $.ajax({
+                    url: '/iMES/getDHAccessToken',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: JSON.stringify({appId: appId, account: account}),
+                    success: function (response) {
+                        window.open("http://192.168.138.13/outside/oauth_login/action:login/access_token:" + response.msg, "_blank");
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+                break;
+
+            case '澳美HR':
+                // HR登录逻辑
+               /* $.ajax({
+                    url: '/system/user/hrautologin',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        userName: system.userName == null ? userName : system.userName,
+                        password: system.password == null ? password : system.password
+                    }),
+                    success: function (response) {
+                        window.open('/HRAutoLogin.html?encJsonData=' + encodeURIComponent(response.msg), '_blank');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('提交失败:', error);
+                    }
+                });*/
+                alert("暂时未开放")
+                break;
+
+            case '智源HR':
+                // ERP登录逻辑
+                $.ajax({
+                    url: '/system/user/hrautologin',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        userName: system.userName == null ? userName : system.userName,
+                        password: system.password == null ? password : system.password
+                    }),
+                    success: function (response) {
+                        window.open('/HRAutoLogin.html?encJsonData=' + encodeURIComponent(response.msg), '_blank');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('提交失败:', error);
+                    }
+                });
+                break;
+
+            case 'ERP':
+                // ERP登录逻辑
+                /*$.ajax({
+                    url: '',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        username: system.userName == null ? userName : system.userName,
+                        password: system.password == null ? password : system.password
+                    }),
+                    success: function (response) {
+                        console.log(response);
+                    },
+                    error: function (error) {
+                        console.error('提交失败:', error);
+                    }
+                });*/
+                alert("暂时未开放")
+                break;
+
+            default:
+                console.log('未知系统类型');
+        }
+    }
+
+    // 以下是原有的点击事件处理，可以删除，因为已经被上面的动态处理替代
+    // $("#MES_LOGIN").click(function () {...});
+    // $("#iMES_LOGIN").click(function () {...});
+    // $("#ERP_LOGIN").click(function () {...});
+    // $("#HR_LOGIN").click(function () {...});
+
+</script>
+
