@@ -99,26 +99,61 @@ onUnmounted(() => {
 async function init() {
   const imgEl = unref(imgElRef)
   if (!imgEl) {
+    console.warn('未找到图片元素');
     return
   }
-  cropper.value = new Cropper(imgEl, {
-    ...defaultOptions,
-    ready: () => {
-      isReady.value = true
-      realTimeCroppered()
-      emit('ready', cropper.value)
-    },
-    crop() {
-      debounceRealTimeCroppered()
-    },
-    zoom() {
-      debounceRealTimeCroppered()
-    },
-    cropmove() {
-      debounceRealTimeCroppered()
-    },
-    ...props.options
-  })
+  
+  try {
+    // 确保图片已加载
+    if (props.src && !imgEl.complete) {
+      // 等待图片加载完成
+      await new Promise((resolve, reject) => {
+        imgEl.onload = resolve;
+        imgEl.onerror = reject;
+      }).catch(err => {
+        console.error('图片加载失败:', err);
+        throw new Error('图片加载失败');
+      });
+    }
+    
+    cropper.value = new Cropper(imgEl, {
+      ...defaultOptions,
+      ready: () => {
+        isReady.value = true
+        try {
+          realTimeCroppered()
+        } catch (error) {
+          console.error('初始预览生成失败:', error);
+        }
+        emit('ready', cropper.value)
+      },
+      crop() {
+        try {
+          debounceRealTimeCroppered()
+        } catch (error) {
+          console.error('裁剪更新失败:', error);
+        }
+      },
+      zoom() {
+        try {
+          debounceRealTimeCroppered()
+        } catch (error) {
+          console.error('缩放更新失败:', error);
+        }
+      },
+      cropmove() {
+        try {
+          debounceRealTimeCroppered()
+        } catch (error) {
+          console.error('移动更新失败:', error);
+        }
+      },
+      ...props.options
+    })
+  } catch (error) {
+    console.error('初始化裁剪器失败:', error);
+    isReady.value = false
+  }
 }
 
 // Real-time display preview
@@ -131,29 +166,66 @@ function croppered() {
   if (!cropper.value) {
     return
   }
-  let imgInfo = cropper.value.getData()
-  const canvas = props.circled ? getRoundedCanvas() : cropper.value.getCroppedCanvas()
-  canvas.toBlob((blob) => {
-    if (!blob) {
-      return
+  try {
+    let imgInfo = cropper.value.getData()
+    // 尝试获取裁剪后的画布
+    let canvas;
+    try {
+      canvas = props.circled ? getRoundedCanvas() : cropper.value.getCroppedCanvas()
+      // 确保画布有效且尺寸不为0
+      if (!canvas || canvas.width <= 0 || canvas.height <= 0) {
+        console.warn('生成的画布无效或尺寸为0');
+        emit('cropendError');
+        return;
+      }
+    } catch (error) {
+      console.error('获取裁剪画布失败:', error);
+      emit('cropendError');
+      return;
     }
-    let fileReader: FileReader = new FileReader()
-    fileReader.readAsDataURL(blob)
-    fileReader.onloadend = (e) => {
-      emit('cropend', {
-        imgBase64: e.target?.result ?? '',
-        imgInfo
-      })
-    }
-    fileReader.onerror = () => {
-      emit('cropendError')
-    }
-  }, 'image/png')
+    
+    // 尝试将画布转换为blob
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        console.warn('无法创建Blob对象');
+        emit('cropendError');
+        return;
+      }
+      let fileReader: FileReader = new FileReader()
+      fileReader.readAsDataURL(blob)
+      fileReader.onloadend = (e) => {
+        if (!e.target?.result) {
+          console.warn('FileReader结果为空');
+          emit('cropendError');
+          return;
+        }
+        emit('cropend', {
+          imgBase64: e.target.result,
+          imgInfo
+        })
+      }
+      fileReader.onerror = (error) => {
+        console.error('FileReader错误:', error);
+        emit('cropendError')
+      }
+    }, 'image/png')
+  } catch (error) {
+    console.error('图片裁剪过程中发生错误:', error);
+    emit('cropendError');
+  }
 }
 
 // Get a circular picture canvas
 function getRoundedCanvas() {
   const sourceCanvas = cropper.value!.getCroppedCanvas()
+  if (!sourceCanvas || sourceCanvas.width <= 0 || sourceCanvas.height <= 0) {
+    console.warn('源画布无效或尺寸为0');
+    const minCanvas = document.createElement('canvas');
+    minCanvas.width = 1;
+    minCanvas.height = 1;
+    return minCanvas;
+  }
+  
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('2d')!
   const width = sourceCanvas.width
