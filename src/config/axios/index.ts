@@ -21,7 +21,8 @@ export default {
   },
   post: async <T = any>(option: any) => {
     const res = await request({ method: 'POST', ...option })
-    return res.data as unknown as T
+      // 如果res.data有值就返回res.data，否则返回整个res
+      return (res.data) ? (res.data as unknown as T) : (res as unknown as T)
   },
   postOriginal: async (option: any) => {
     const res = await request({ method: 'POST', ...option })

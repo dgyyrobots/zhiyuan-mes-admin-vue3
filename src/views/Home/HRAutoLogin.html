@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录中...</title>
+    <style>
+        body {
+          margin: 0;
+          padding: 0;
+          background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          font-family: "Helvetica Neue", sans-serif;
+          color: #333;
+        }
+    
+        .container {
+          text-align: center;
+          background: white;
+          padding: 40px 60px;
+          border-radius: 20px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+          animation: fadeIn 1s ease-in-out;
+        }
+    
+        .spinner {
+          border: 6px solid #f3f3f3;
+          border-top: 6px solid #3498db;
+          border-radius: 50%;
+          width: 60px;
+          height: 60px;
+          margin: 20px auto;
+          animation: spin 1s linear infinite;
+        }
+    
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+    
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
+        }
+    
+        .message {
+          font-size: 1.2em;
+          margin-top: 10px;
+        }
+      </style>    
+</head>
+<body>
+    <div class="container">
+        <h1>正在登录</h1>
+        <div class="spinner"></div>
+        <p class="message">请稍候，正在为您跳转到登录页面...</p>
+      </div>
+<!-- 修改表单，移除target属性，改为通过JS控制提交 -->
+<form id="myForm" action="http://www.amvig.com.cn:9000/Authentication/Validate" method="POST">
+    <input id="encId" type="hidden" name="_">
+    <!-- <input type="submit" id="submit_input" value="提交表单"> -->
+</form>
+
+
+<script>
+
+    window.onload = function () {
+  
+        //通过url获取值
+        var params = new URLSearchParams(window.location.search);
+        console.log(params)
+        var encJsonData = params.get("encJsonData");
+        console.log(encJsonData)
+        document.getElementById("encId").value = encJsonData || "";
+        console.log(document.getElementById("encId").value)
+        handleFormSubmit()
+    }
+    function clearCookiesByDomain(domain) {
+        var cookies = document.cookie.split("; ");
+        var pattern = new RegExp("^(.*; )" + "domain=" + window.location.host.replace(/\./g, "\\.") + "[^;]*(;.*)?$");
+        for (var i = 0; i < cookies.length; i++) {
+            if (pattern.test(cookies[i])) {
+            document.cookie = cookies[i].split("=")[0] + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            }
+        }
+    }
+
+    // 新增处理表单提交的函数
+  async  function handleFormSubmit() {
+       // 首先清除cookie
+  await  clearCookiesByDomain("www.amvig.com.cn");
+        // 创建一个隐藏的窗口
+        var hiddenWindow = window.open('about:blank', '_blank', 'popup=yes,width=1,height=1,left=-10000,top=-10000,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,status=no,titlebar=no,dialog=yes');
+        // 获取表单数据
+        var formData = new FormData(document.getElementById('myForm'));
+        // 创建一个表单在新窗口中提交
+        if (hiddenWindow) {
+            // 尝试移动窗口到屏幕外并调整大小
+            try {
+                hiddenWindow.moveTo(-10000, -10000);
+                hiddenWindow.resizeTo(1, 1);
+            } catch (e) {
+                console.log('无法调整窗口位置和大小');
+            }
+            hiddenWindow.document.write(`
+                <html>
+                <body>
+                    <form id="hiddenForm" method="POST" action="http://www.amvig.com.cn:9000/Authentication/Validate">
+                        <input type="hidden" name="_" value="${document.querySelector('input[name="_"]').value}">
+                    </form>
+                    <script>
+                        document.getElementById('hiddenForm').submit();
+                        // 通知父窗口表单已提交
+                        window.opener && window.opener.postMessage('formSubmitted', '*');
+                    <\/script>
+                </body>
+                </html>
+            `);
+            // 监听来自子窗口的消息
+            window.addEventListener('message', function (event) {
+                if (event.data === 'formSubmitted') {
+                    console.log('表单已在隐藏窗口中提交');
+                    // 延迟关闭窗口，确保表单有足够时间提交
+                    setTimeout(() => {
+                        if (hiddenWindow && !hiddenWindow.closed) {
+                            hiddenWindow.close();
+                            console.log('隐藏窗口已关闭');
+                        }
+                    }, 1000);
+                }
+            });
+            // 延迟后跳转到主页面
+            setTimeout(() => {
+                // 确保窗口关闭
+                if (hiddenWindow && !hiddenWindow.closed) {
+                    hiddenWindow.close();
+                }
+                window.location.href = 'http://www.amvig.com.cn:9000/';
+            }, 1500);
+        }
+        return false; // 阻止表单默认提交
+    }
+
+
+</script>
+</body>
+</html>

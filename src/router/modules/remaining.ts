@@ -205,6 +205,16 @@ const remainingRouter: AppRouteRecordRaw[] = [
     }
   },
   {
+    path: '/hrAutoLogin',
+    component: () => import('@/views/Home/HRAutoLogin.vue'),
+    name: 'HRAutoLogin',
+    meta: {
+      hidden: true,
+      title: 'hr自动登录',
+      noTagsView: true
+    }
+  },
+  {
     path: '/403',
     component: () => import('@/views/Error/403.vue'),
     name: 'NoAccess',

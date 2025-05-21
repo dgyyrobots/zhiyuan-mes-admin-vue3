@@ -1,12 +1,24 @@
 <template>
   <div class="content">
+    <div class="network-switch">
+      <span class="network-label">网络类型：</span>
+      <el-select 
+        v-model="networkType" 
+        placeholder="请选择网络类型"
+        style="width: 120px"
+        @change="handleNetworkChange"
+      >
+        <el-option label="内网" value="内网" />
+        <el-option label="外网" value="外网" />
+      </el-select>
+    </div>
     <div class="card-container">
       <div 
         v-for="(item, index) in cardList"
         :key="index" 
         class="card-item"
       >
-        <div class="card-content" @click="openUrl(item.sysUrl)">
+        <div class="card-content" @click="openUrl(item)">
           <div class="card-icon">
             <el-avatar
              :src="item.sysLogUrl"
@@ -62,45 +74,103 @@ import { ref, reactive, onMounted } from 'vue';
 import * as HomeApi from '@/api/system/homeSet';
 import { View, Hide } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
+import router from '@/router';
 // 定义卡片项的接口
 interface CardItem {
   userName: string;
   password: string;
   sysId:string,
+  sysName:string,
+  sysLogUrl:string,
+  sysUrl:string,
+  sysUrlNet:string
 }
 
 // 卡片数据列表
-const cardList = ref<CardItem[]>([
-  // {
-  //   name: '测试地址1',
-  //   url: 'https://www.example.com/test1',
-  //   icon: 'ep:element-plus'
-  // },
-  // {
-  //   name: '测试地址2',
-  //   url: 'https://www.example.com/test2',
-  //   icon: 'ep:element-plus'
-  // },
-  // {
-  //   name: '测试地址3',
-  //   url: 'https://www.example.com/test3',
-  //   icon: 'ep:element-plus'
-  // },
-  // {
-  //   name: '测试地址4',
-  //   url: 'https://www.example.com/test4',
-  //   icon: 'ep:element-plus'
-  // },
-  // {
-  //   name: '测试地址5',
-  //   url: 'https://www.example.com/test5',
-  //   icon: 'ep:element-plus'
-  // }
-]);
+const cardList = ref<CardItem[]>([]);
 
 // 打开URL到新标签页
-const openUrl = (url: string) => {
-  window.open(url, '_blank');
+const openUrl = async (item: CardItem) => {
+  if (!item.userName || !item.password) {
+    ElMessage.error('请先设置账号和密码');
+    return;
+  }
+  const url = networkType.value==='内网'? item.sysUrl : item.sysUrlNet  // sysUrlNet 是外网, sysUrl 是内网
+  if(!url) {
+    ElMessage.error(`未获取跳转路径,请切换成${networkType.value==='内网'?'外网':'内网'}模式!`);
+    return;
+  }
+  try {
+    switch (item.sysName) {
+      case '澳美MES':
+        // 调用自动登录接口
+        const res = await HomeApi.amMesAutoLogin({
+          userName: item.userName,
+          password: item.password,
+          net: networkType.value
+        });
+        if (res && res.accessToken) {
+          // 参照main.html中的URL格式，使用token参数
+          window.open(`${url}/login?tenant-id=${res.tenantId}&token=${res.accessToken}`, '_blank');
+        } else {
+          ElMessage.error(res?.msg || '自动登录失败');
+        }
+        break;
+
+        case '智源MES':
+          // 调用自动登录接口
+          const zyres = await HomeApi.zyMesAutoLogin({
+            appId: item.userName,
+            account: item.password,
+            net: networkType.value
+          });
+          const zy_accessToken = zyres
+          if (zy_accessToken) {
+            window.open(`${url}/outside/oauth_login/action:login/access_token:` + zy_accessToken, "_blank");
+          } else {
+          ElMessage.error(zyres?.msg || '自动登录失败');
+        }
+        break;
+
+        case '东合MES':
+        // 调用自动登录接口
+         const dhres = await HomeApi.dhMesAutoLogin({
+            appId: item.userName,
+            account: item.password,
+            net: networkType.value
+          });
+          const dh_accessToken = dhres
+          if (dh_accessToken) {
+            window.open(`${url}/outside/oauth_login/action:login/access_token:` + dh_accessToken, "_blank");
+          } else {
+          ElMessage.error(dhres?.msg || '自动登录失败');
+        }
+        break;
+
+        case '智源HR':
+        // 调用自动登录接口
+         const hrres = await HomeApi.zyHrAutoLogin({
+            userName: item.userName,
+            password: item.password,
+            net: networkType.value
+          });
+          const hr_accessToken = hrres
+          if (hr_accessToken) {
+            // 使用window.open在新标签页中打开
+            window.open(`http://172.16.12.101:9000/ammes/HRAutoLogin.html?encJsonData=${encodeURIComponent(hr_accessToken)}`, '_blank');
+          } else {
+          ElMessage.error(hrres?.msg || '自动登录失败');
+        }
+        break;
+      default:
+        // 其他系统的处理逻辑
+        window.open(item.sysUrl, '_blank');
+        break;
+    }
+  } catch (error) {
+    console.error('自动登录出错:', error);
+    ElMessage.error('自动登录失败，请稍后重试');
+  }
 };
 
 // 设置弹框相关
@@ -135,13 +205,15 @@ const saveSettings = async () => {
       
       const res = await HomeApi.registerAccountPwd(params);
       
-      if (res=== '账号密码设置完成') {
+      if (res === '账号密码设置完成') {
         ElMessage.success('账号密码保存成功');
         // 更新当前项的账号密码
         if (currentItem.value) {
           currentItem.value.userName = settingForm.userName;
           currentItem.value.password = settingForm.password;
         }
+        // 重新请求列表数据，刷新页面
+        await getList();
       } else {
         ElMessage.error(res.msg || '保存失败');
       }
@@ -151,6 +223,16 @@ const saveSettings = async () => {
     }
   }
   dialogVisible.value = false;
+};
+
+// 在 script 部分添加
+// 网络类型选择
+const networkType = ref(localStorage.getItem('networkType') || '内网');
+
+// 处理网络类型切换
+const handleNetworkChange = async () => {
+  // 将选择保存到本地存储
+  localStorage.setItem('networkType', networkType.value);
 };
 
 const getList = async () => {
@@ -174,6 +256,20 @@ onMounted(async () => {
   min-height: calc(100vh - 160px);
   min-width: calc(100vw - 240px);
   padding: 24px;
+}
+
+.network-switch {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  justify-content: flex-start;
+  padding-right: 10px;
+}
+
+.network-label {
+  margin-right: 10px;
+  font-size: 14px;
+  color: #606266;
 }
 
 .card-container {
