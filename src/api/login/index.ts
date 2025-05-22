@@ -83,3 +83,7 @@ export const reqCheck = (data: any) => {
 export const smsResetPassword = (data: any) => {
   return request.post({ url: '/system/auth/reset-password', data })
 }
+// 获取租户列表
+export const getTenantNameList = () => {
+  return request.get({ url: '/system/oneLogin/initSelectTenantNames' })
+}

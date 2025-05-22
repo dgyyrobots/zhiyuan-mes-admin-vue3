@@ -17,13 +17,26 @@
       </el-col>
       <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
         <el-form-item v-if="loginData.tenantEnable === 'true'" prop="tenantName">
-          <el-input
+          <!-- <el-input
             v-model="loginData.loginForm.tenantName"
             :placeholder="t('login.tenantNamePlaceholder')"
             :prefix-icon="iconHouse"
             link
             type="primary"
+          /> -->
+          <el-select
+          v-model="loginData.loginForm.tenantName"
+          placeholder="请选择租户名称"
+          clearable
+          filterable
+        >
+          <el-option
+            v-for="(item,index) in tenantOptions"
+            :key="item + index"
+            :label="item"
+            :value="item"
           />
+        </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
@@ -178,6 +191,7 @@ const redirect = ref<string>('')
 const loginLoading = ref(false)
 const verify = ref()
 const captchaType = ref('blockPuzzle') // blockPuzzle 滑块 clickWord 点击文字
+const tenantOptions = ref([])
 
 const getShow = computed(() => unref(getLoginState) === LoginStateEnum.LOGIN)
 
@@ -246,6 +260,7 @@ const getTenantByWebsite = async () => {
     authUtil.setTenantId(res.id)
   }
 }
+
 const loading = ref() // ElLoading.service 返回的实例
 // 登录
 const handleLogin = async (params: any) => {
@@ -323,6 +338,11 @@ const doSocialLogin = async (type: number) => {
     window.location.href = await LoginApi.socialAuthRedirect(type, encodeURIComponent(redirectUri))
   }
 }
+const getTenantNameOptions = async () => {
+  const res = await LoginApi.getTenantNameList()
+  console.log(res,'rrrrr')
+  tenantOptions.value = res
+}
 watch(
   () => currentRoute.value,
   (route: RouteLocationNormalizedLoaded) => {
@@ -335,6 +355,7 @@ watch(
 onMounted(() => {
   getLoginFormCache()
   getTenantByWebsite()
+  getTenantNameOptions()
 })
 </script>
 

@@ -11,13 +11,20 @@
       label-width="100px"
     >
       <el-form-item label="公司名称" prop="deptName">
-        <el-input
+        <el-select
           v-model="queryParams.deptName"
           class="!w-240px"
+          placeholder="请选择公司名称"
           clearable
-          placeholder="请输入公司名称"
-          @keyup.enter="handleQuery"
-        />
+          filterable
+        >
+          <el-option
+            v-for="item in deptOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="系统名称" prop="sysName">
         <el-input
@@ -138,7 +145,20 @@
       label-width="120px"
     >
       <el-form-item label="公司名称" prop="deptName">
-        <el-input v-model="form.deptName" placeholder="请输入公司名称"  :disabled="title === '修改系统地址信息'" />
+        <el-select
+          v-model="form.deptName"
+          placeholder="请选择公司名称"
+          :disabled="title === '修改系统地址信息'"
+          clearable
+          filterable
+        >
+          <el-option
+            v-for="item in deptOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="系统名称" prop="sysName">
         <el-input v-model="form.sysName" placeholder="请输入系统名称"  :disabled="title === '修改系统地址信息'" />
@@ -209,6 +229,14 @@ const exportLoading = ref(false)
 const total = ref(0)
 const list = ref<SystemAddressVO[]>([])
 const queryFormRef = ref()
+
+// 公司下拉选项
+const deptOptions = ref([
+  { value: '智源科技', label: '智源科技' },
+  { value: '智源互联', label: '智源互联' },
+  { value: '智源软件', label: '智源软件' },
+  { value: '智源信息', label: '智源信息' }
+])
 
 // 查询参数
 const queryParams = reactive({
@@ -582,9 +610,42 @@ watch(open, (newVal) => {
   }
 });
 
+/** 加载公司列表数据 */
+const loadCompanyOptions = async () => {
+  try {
+    // 从列表中提取唯一的公司名称
+    const uniqueCompanies = new Set<string>()
+    
+    list.value.forEach(item => {
+      if (item.deptName) {
+        uniqueCompanies.add(item.deptName)
+      }
+    })
+    
+    // 更新下拉选项
+    if (uniqueCompanies.size > 0) {
+      deptOptions.value = Array.from(uniqueCompanies).map(name => ({
+        value: name,
+        label: name
+      }))
+    }
+    
+    console.log('公司列表加载完成:', deptOptions.value)
+  } catch (error) {
+    console.error('加载公司列表失败:', error)
+  }
+}
+
 /** 初始化 */
 onMounted(() => {
+  // 获取列表数据
   getList()
+  
+  // 设置短暂延迟确保列表数据加载完成
+  setTimeout(() => {
+    // 提取公司名称选项
+    loadCompanyOptions()
+  }, 500)
   
   // 监听点击事件来检测对话框的打开和关闭
   document.body.addEventListener('click', (e) => {
