@@ -137,13 +137,13 @@
       :rules="rules"
       label-width="120px"
     >
-      <el-form-item label="公司名称" prop="deptName" :disabled="title === '修改系统地址信息'">
-        <el-input v-model="form.deptName" placeholder="请输入公司名称" />
+      <el-form-item label="公司名称" prop="deptName">
+        <el-input v-model="form.deptName" placeholder="请输入公司名称"  :disabled="title === '修改系统地址信息'" />
       </el-form-item>
-      <el-form-item label="系统名称" prop="sysName" :disabled="title === '修改系统地址信息'">
-        <el-input v-model="form.sysName" placeholder="请输入系统名称" />
+      <el-form-item label="系统名称" prop="sysName">
+        <el-input v-model="form.sysName" placeholder="请输入系统名称"  :disabled="title === '修改系统地址信息'" />
       </el-form-item>
-      <el-form-item label="内网系统地址" prop="sysUrl">
+      <el-form-item label="内网系统地址">
         <el-input v-model="form.sysUrl" placeholder="请输入内网系统访问地址" />
       </el-form-item>
       <el-form-item label="外网系统地址" prop="sysUrlNet">
@@ -165,14 +165,14 @@
           </div>
         </div>
       </el-form-item>
-      <el-form-item label="创建者" prop="createUser" disabled>
-        <el-input v-model="form.createUser" placeholder="请输入创建者" />
+      <el-form-item label="创建者" prop="createUser">
+        <el-input v-model="form.createUser" placeholder="请输入创建者"   disabled/>
       </el-form-item>
-      <el-form-item label="修改者" prop="updateUser" disabled>
-        <el-input v-model="form.updateUser" placeholder="请输入修改者" />
+      <el-form-item label="修改者" prop="updateUser">
+        <el-input v-model="form.updateUser" placeholder="请输入修改者"  disabled />
       </el-form-item>
-      <el-form-item label="程序编号" prop="pg" disabled>
-        <el-input v-model="form.pg" placeholder="请输入程序编号" />
+      <el-form-item label="程序编号" prop="pg">
+        <el-input v-model="form.pg" placeholder="请输入程序编号"  disabled />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -233,7 +233,6 @@ const form = reactive<Partial<SystemAddressVO>>({})
 const rules = reactive({
   // 可以根据需要添加表单验证规则
   sysName: [{ required: true, message: '系统名称不能为空', trigger: 'blur' }],
-  sysUrl: [{ required: true, message: '内网系统访问地址不能为空', trigger: 'blur' }]
 })
 
 // 添加对裁剪组件的引用
