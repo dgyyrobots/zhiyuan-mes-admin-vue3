@@ -85,5 +85,5 @@ export const smsResetPassword = (data: any) => {
 }
 // 获取租户列表
 export const getTenantNameList = () => {
-  return request.get({ url: '/system/oneLogin/initSelectTenantNames' })
+  return request.get({ url: '/system/tenant/get-tenant-list' })
 }
