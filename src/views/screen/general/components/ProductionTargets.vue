@@ -103,18 +103,19 @@
   <script setup>
   import { ref, onMounted, onUnmounted } from 'vue'
   import { CountTo } from 'vue3-count-to'
-  // import { getProductionTargets } from '@/api/production.js' // 假设有这个API
+  // 引入API
+  import { getMainData } from '@/api/screen/general/index'
   
   // 目标数据
   const targetData = ref({
-    yearTarget: 10000,
-    monthTarget: 1000,
-    yearQualityTarget: 98,
-    yearCompleted: 8500,
-    monthCompleted: 950,
-    actualQualityRate: 97.5,
-    yearCompletionRate: 85,
-    monthCompletionRate: 95
+    yearTarget: 0,
+    monthTarget: 0,
+    yearQualityTarget: 0,
+    yearCompleted: 0,
+    monthCompleted: 0,
+    actualQualityRate: 0,
+    yearCompletionRate: 0,
+    monthCompletionRate: 0
   })
   
   // 定时器引用
@@ -129,37 +130,70 @@
     return numRate >= 100 ? 'up' : numRate >= 90 ? 'medium' : 'down'
   }
   
+  // 数据转换函数 - 将API返回的数据转换为组件需要的格式
+  const transformApiData = (apiData) => {
+    console.log(apiData,'dddddddd')
+    if (!apiData) {
+      return {
+        yearTarget: 0,
+        monthTarget: 0,
+        yearQualityTarget: 0,
+        yearCompleted: 0,
+        monthCompleted: 0,
+        actualQualityRate: 0,
+        yearCompletionRate: 0,
+        monthCompletionRate: 0
+      }
+    }
+    
+    return {
+      yearTarget: apiData.年度目标 || 0,
+      monthTarget: apiData.月度目标 || 0,
+      yearQualityTarget: parseFloat(apiData.合格率目标 || 0),
+      yearCompleted: apiData.年度总箱数 || 0,
+      monthCompleted: apiData.月度总箱数 || 0,
+      actualQualityRate: parseFloat(apiData.合格率百分比 || 0),
+      yearCompletionRate: parseFloat(apiData.年度完成率 || 0),
+      monthCompletionRate: parseFloat(apiData.月度完成率 || 0)
+    }
+  }
+  
   // 获取生产目标数据
   const fetchData = async () => {
     try {
-      // 实际项目中应该调用API
-      // const res = await getProductionTargets()
-      // if (res && res.code === 0 && res.data) {
-      //   targetData.value = {
-      //     yearTarget: formatNumber(res.data.yearTarget),
-      //     monthTarget: formatNumber(res.data.monthTarget),
-      //     yearQualityTarget: res.data.yearQualityTarget + '%',
-      //     yearCompleted: formatNumber(res.data.yearCompleted),
-      //     monthCompleted: formatNumber(res.data.monthCompleted),
-      //     actualQualityRate: res.data.actualQualityRate + '%',
-      //     yearCompletionRate: res.data.yearCompletionRate + '%',
-      //     monthCompletionRate: res.data.monthCompletionRate + '%'
-      //   }
-      // }
+      // 调用真实API
+      const res = await getMainData({})
       
-      // 模拟数据
-      targetData.value = {
-        yearTarget: 10000,
-        monthTarget: 1000,
-        yearQualityTarget: 98,
-        yearCompleted: 8500, 
-        monthCompleted: 950,
-        actualQualityRate: 97.5,
-        yearCompletionRate: 85,
-        monthCompletionRate: 95
+      if (res) {
+        // 转换API数据为组件需要的格式
+        targetData.value = transformApiData(res)
+      } else {
+        console.warn('API返回数据格式异常:', res)
+        // 如果API调用失败，使用模拟数据作为备用
+        targetData.value = {
+          yearTarget: 0,
+          monthTarget:0,
+          yearQualityTarget: 0,
+          yearCompleted: 0, 
+          monthCompleted: 0,
+          actualQualityRate: 0,
+          yearCompletionRate: 0,
+          monthCompletionRate: 0
+        }
       }
     } catch (error) {
       console.error('获取生产目标数据失败:', error)
+      // 错误时使用模拟数据
+      targetData.value = {
+        yearTarget: 0,
+        monthTarget: 0,
+        yearQualityTarget: 0,
+        yearCompleted: 0, 
+        monthCompleted: 0,
+        actualQualityRate: 0,
+        yearCompletionRate: 0,
+        monthCompletionRate: 0
+      }
     }
   }
   
