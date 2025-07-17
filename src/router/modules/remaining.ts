@@ -704,6 +704,28 @@ const remainingRouter: AppRouteRecordRaw[] = [
       }
     ]
   },
+
+
+  {
+    path: '/screen',
+    component: Layout,
+    name: 'screen',
+    meta: {
+      hidden: true
+    },
+    children: [
+      {
+        path: 'general',
+        component: () => import('@/views/screen/general/index.vue'),
+        name: 'General',
+        meta: {
+          title: '总经理看板',
+          icon: 'ep:home-filled',
+          noCache: false
+        }
+      },
+    ]
+  },
   {
     path: '/:pathMatch(.*)*',
     component: () => import('@/views/Error/404.vue'),
