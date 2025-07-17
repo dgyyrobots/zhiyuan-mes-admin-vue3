@@ -190,7 +190,6 @@ onUnmounted(() => {
     width: 100%;
     display: flex;
     flex-direction: row;
-    padding-left: 12px;
     padding-top: 6px;
     
     .left {
