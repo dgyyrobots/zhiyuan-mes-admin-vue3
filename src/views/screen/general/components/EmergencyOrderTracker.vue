@@ -11,15 +11,19 @@ v-for="(item, index) in orderData" :key="index"
            class="order-card">
         <div class="card-header">
           <span class="order-link">{{ item.orderNo }}</span>
-          <span :class="['completion-badge', {'up': item.completionRate >= 100, 'down': item.completionRate < 100}]">
+          <span :class="['completion-badge', {'up': item.completionRate >= 90, 'down': item.completionRate < 90}]">
             {{ item.completionRate }}%
           </span>
         </div>
         <div class="card-body">
           <div class="info-item">
             <span class="info-label">客&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span>
-            <span class="info-value">{{ item.customer }}</span>
+            <span class="info-value" :title="item.customer">{{ item.customer }}</span>
           </div>
+          <!-- <div class="info-item">
+            <span class="info-label">客户编号:</span>
+            <span class="info-value">{{ item.customerCode }}</span>
+          </div> -->
           <!-- 修改这里：将交货日期和工单数量放在同一行 -->
           <div class="info-row">
             <div class="info-item">
@@ -27,10 +31,20 @@ v-for="(item, index) in orderData" :key="index"
               <span class="info-value" style="padding-left: 10px;">{{ item.deliveryDate }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">工单数量:</span>
+              <span class="info-label">任务数量:</span>
               <span class="info-value">{{ item.quantity }}</span>
             </div>
           </div>
+          <!-- <div class="info-row">
+            <div class="info-item">
+              <span class="info-label">合格量:</span>
+              <span class="info-value">{{ item.qualifiedQuantity }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">发料套数:</span>
+              <span class="info-value">{{ item.issuedSets }}</span>
+            </div>
+          </div> -->
         </div>
         <div class="card-footer">
           <span class="view-details">
@@ -58,8 +72,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import jumpdetailIcon from '@/assets/screen/icon_svg/jumpd.svg';
 // 引入详情弹框组件
 import OrderDetailModal from './OrderDetailModal.vue'
-// 假设有这个API
-// import { getEmergencyOrders } from '@/api/orders.js'
+// 引入API
+import { getEmergencyOrderTrackingList } from '@/api/screen/general/index'
 
 // 工单数据
 const orderData = ref([])
@@ -110,26 +124,56 @@ const getRandomRemark = () => {
   return remarks[Math.floor(Math.random() * remarks.length)]
 }
 
+// 时间戳转换为日期字符串
+const formatDate = (timestamp) => {
+  if (!timestamp) return '-'
+  const date = new Date(timestamp)
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  })
+}
+
+// 数据转换函数 - 将API返回的数据转换为组件需要的格式
+const transformApiData = (apiData) => {
+  if (!apiData || !Array.isArray(apiData)) {
+    return []
+  }
+  
+  return apiData.map((item) => {
+    return {
+      orderNo: item.工单编号 || '-',
+      customer: item.客户名称 || '-',
+      customerCode: item.客户编号 || '-',
+      deliveryDate: formatDate(item.交货日期),
+      quantity: item.任务数量 || 0,
+      completionRate: parseFloat(item.完成率 || 0),
+      qualifiedQuantity: item.已入库合格量 || 0,
+      issuedSets: item.已发料套数 || 0
+    }
+  })
+}
+
 // 获取紧急工单数据
 const fetchData = async () => {
   try {
-    // 实际项目中应该调用API
-    // const res = await getEmergencyOrders()
-    // if (res && res.code === 0 && res.data) {
-    //   orderData.value = res.data
-    // }
+    // 调用真实API
+    const res = await getEmergencyOrderTrackingList({})
+    console.log('API返回数据:', res)
     
-    // 模拟数据
-    orderData.value = [
-      { orderNo: 'JG-2025-0001', customer: '客户A', deliveryDate: '2025-12-25', quantity: 500, completionRate: 85 },
-      { orderNo: 'JG-2025-0002', customer: '客户B', deliveryDate: '2025-12-26', quantity: 300, completionRate: 100 },
-      { orderNo: 'JG-2025-0003', customer: '客户C', deliveryDate: '2025-12-27', quantity: 800, completionRate: 65 },
-      { orderNo: 'JG-2025-0004', customer: '客户D', deliveryDate: '2025-12-28', quantity: 200, completionRate: 90 },
-      { orderNo: 'JG-2025-0005', customer: '客户E', deliveryDate: '2025-12-29', quantity: 450, completionRate: 30 },
-      { orderNo: 'JG-2025-0006', customer: '客户F', deliveryDate: '2025-12-30', quantity: 600, completionRate: 0 }
-    ]
+    if (res && res.length) {
+      // 转换API数据为组件需要的格式
+      orderData.value = transformApiData(res)
+    } else {
+      console.warn('API返回数据格式异常:', res)
+      // 如果API调用失败，使用模拟数据作为备用
+      orderData.value = []
+    }
   } catch (error) {
     console.error('获取紧急工单数据失败:', error)
+    // 错误时使用模拟数据
+      orderData.value = []
   }
 }
 
@@ -283,17 +327,17 @@ onUnmounted(() => {
           font-weight: 500;
           min-width: 45px; // 确保徽章有足够宽度
           text-align: center;
-          
-          &.up {
+        }
+
+         .up {
             background-color: rgba(76, 175, 80, 0.2);
             color: #4caf50;
           }
           
-          &.down {
+          .down {
             background-color: rgba(244, 67, 54, 0.2);
             color: #f44336;
           }
-        }
       }
       
       .card-body {

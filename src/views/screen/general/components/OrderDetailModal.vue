@@ -6,40 +6,44 @@
           <h3 class="modal-title">工单详情</h3>
           <button class="close-btn" @click="handleClose">×</button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" v-loading="loading">
           <div class="detail-grid">
             <!-- 第一行 -->
             <div class="detail-item">
               <span class="item-label">工&nbsp;&nbsp;单&nbsp;&nbsp;号:</span>
-              <span class="item-value">{{ orderDetail.orderNo }}</span>
+              <span class="item-value">{{ detailData.orderNo || orderDetail.orderNo }}</span>
             </div>
             <div class="detail-item">
               <span class="item-label">客&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span>
-              <span class="item-value">{{ orderDetail.customer }}</span>
+              <span class="item-value">{{ detailData.customer || orderDetail.customer }}</span>
             </div>
             <div class="detail-item">
-              <span class="item-label">订单日期:</span>
-              <span class="item-value">{{ orderDetail.orderDate }}</span>
+              <span class="item-label">客户编号:</span>
+              <span class="item-value">{{ detailData.customerCode || orderDetail.customerCode }}</span>
             </div>
             
             <!-- 第二行 -->
             <div class="detail-item">
-              <span class="item-label">产品名称:</span>
-              <span class="item-value">{{ orderDetail.productName }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="item-label">订单数量:</span>
-              <span class="item-value">{{ orderDetail.quantity }}</span>
+              <span class="item-label">任务数量:</span>
+              <span class="item-value">{{ detailData.quantity || orderDetail.quantity }}</span>
             </div>
             <div class="detail-item">
               <span class="item-label">交货日期:</span>
-              <span class="item-value">{{ orderDetail.deliveryDate }}</span>
+              <span class="item-value">{{ detailData.deliveryDate || orderDetail.deliveryDate }}</span>
             </div>
-            
-            <!-- 第三行 -->
             <div class="detail-item">
-              <span class="item-label">入库数量:</span>
-              <span class="item-value">{{ orderDetail.stockQuantity }}</span>
+              <span class="item-label">已入库合格量:</span>
+              <span class="item-value">{{ detailData.qualifiedQuantity || orderDetail.qualifiedQuantity }}</span>
+            </div>
+            <!-- 第三行 -->
+
+            <div class="detail-item">
+              <span class="item-label">已发料套数:</span>
+              <span class="item-value">{{ detailData.issuedSets || orderDetail.issuedSets }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="item-label">完成率:</span>
+              <span class="item-value">{{ detailData.completionRate || orderDetail.completionRate }}%</span>
             </div>
           </div>
         </div>
@@ -56,7 +60,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="(process, index) in orderDetail.processes || defaultProcesses" :key="index">
+                <tr v-for="(process, index) in (detailData.processes || orderDetail.processes || defaultProcesses)" :key="index">
                     <td>{{ process.name }}</td>
                     <td>{{ process.planQuantity || '-' }}</td>
                     <td>{{ process.completedQuantity || '-' }}</td>
@@ -73,7 +77,9 @@
   </template>
   
   <script setup>
-  import {  ref } from 'vue'
+  import { ref, watch } from 'vue'
+  // 引入API
+  import { getEmergencyOrderTrackingDetail } from '@/api/screen/general/index'
   
   const props = defineProps({
     visible: {
@@ -82,51 +88,145 @@
     },
     orderDetail: {
       type: Object,
-      default: () => ({
-        // 添加默认的工单详情数据
-        orderNo: 'JG-2025-0001',
-        customer: '客户A',
-        orderDate: '2025-12-01',
-        productName: '高档彩盒',
-        quantity: 500,
-        deliveryDate: '2025-12-25',
-        stockQuantity: 0,
-        processes: [
-          { name: '印刷', planQuantity: 500, completedQuantity: 150, completionRate: '30%' },
-          { name: '单门', planQuantity: 500, completedQuantity: 0, completionRate: '0%' },
-          { name: '喷码', planQuantity: 500, completedQuantity: 0, completionRate: '0%' },
-          { name: '烫金', planQuantity: 500, completedQuantity: 0, completionRate: '0%' },
-          { name: '模切', planQuantity: 500, completedQuantity: 0, completionRate: '0%' },
-          { name: '品检', planQuantity: 500, completedQuantity: 0, completionRate: '0%' },
-          { name: '包装', planQuantity: 500, completedQuantity: 0, completionRate: '0%' }
-        ]
-      })
+      default: () => ({})
     }
   })
   
   const emit = defineEmits(['update:visible'])
   
+  // 详情数据
+  const detailData = ref({})
+  // 加载状态
+  const loading = ref(false)
+  
+  // 时间戳转换为日期字符串
+  const formatDate = (timestamp) => {
+    if (!timestamp) return '-'
+    const date = new Date(timestamp)
+    return date.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })
+  }
+  
+  // 数据转换函数
+  const transformDetailData = (apiData) => {
+    if (!apiData) return {}
+    
+    return {
+      orderNo: apiData.工单编号 || apiData.orderNo,
+      customer: apiData.客户名称 || apiData.customer,
+      customerCode: apiData.客户编号 || apiData.customerCode,
+      productName: apiData.产品名称 || apiData.productName,
+      quantity: apiData.任务数量 || apiData.quantity,
+      deliveryDate: formatDate(apiData.交货日期) || apiData.deliveryDate,
+      qualifiedQuantity: apiData.已入库合格量 || apiData.qualifiedQuantity,
+      issuedSets: apiData.已发料套数 || apiData.issuedSets,
+      completionRate: parseFloat(apiData.完成率 || apiData.completionRate || 0),
+      // 转换工序数据
+      processes: transformProcessData(apiData)
+    }
+  }
+  
+  // 新增工序数据转换函数
+  const transformProcessData = (apiData) => {
+    // 如果apiData直接是工序数组（如您提供的数据结构）
+    if (Array.isArray(apiData)) {
+      return apiData.map(process => ({
+        name: process.工序名称 || process.name,
+        planQuantity: formatNumber(process.计划数量 || process.planQuantity),
+        completedQuantity: formatNumber(process.完工数量 || process.completedQuantity),
+        completionRate: formatPercentage(process['完成率\'完成率'] || process.completionRate)
+      }))
+    }
+    
+    // 如果apiData包含工序数组
+    if (apiData && apiData.data && Array.isArray(apiData.data)) {
+      return apiData.data.map(process => ({
+        name: process.工序名称 || process.name,
+        planQuantity: formatNumber(process.计划数量 || process.planQuantity),
+        completedQuantity: formatNumber(process.完工数量 || process.completedQuantity),
+        completionRate: formatPercentage(process['完成率\'完成率'] || process.completionRate)
+      }))
+    }
+    
+    return []
+  }
+  
+  // 数字格式化函数
+  const formatNumber = (value) => {
+    if (value === null || value === undefined) return '-'
+    if (typeof value === 'string' && value.includes('E')) {
+      // 处理科学计数法，如 0E-10
+      const num = parseFloat(value)
+      return num === 0 ? '0' : num.toString()
+    }
+    return parseFloat(value).toLocaleString()
+  }
+  
+  // 百分比格式化函数
+  const formatPercentage = (value) => {
+    if (value === null || value === undefined) return '-'
+    const num = parseFloat(value)
+    return num === 0 ? '0%' : `${(num * 100).toFixed(1)}%`
+  }
+  
+  // 获取工单详情
+  const fetchOrderDetail = async (orderNo) => {
+    if (!orderNo) return
+    
+    loading.value = true
+    try {
+      const res = await getEmergencyOrderTrackingDetail({ orderNo })
+      console.log('工单详情API返回数据:', res)
+      
+      if (res && res.length) {
+        // 如果返回的是工序数据数组
+          detailData.value = {
+            ...detailData.value,
+            processes: transformProcessData(res)
+          }
+      } else {
+        console.warn('获取工单详情失败:', res)
+        detailData.value.processes = []
+      }
+    } catch (error) {
+      console.error('获取工单详情失败:', error)
+          detailData.value.processes = []
+    } finally {
+      loading.value = false
+    }
+  }
+  
+  // 监听弹框显示状态和工单数据变化
+  watch(
+    () => [props.visible, props.orderDetail?.orderNo],
+    ([visible, orderNo]) => {
+      if (visible && orderNo) {
+        // 弹框打开时获取详情数据
+        fetchOrderDetail(orderNo)
+      } else {
+        // 弹框关闭时清空详情数据
+        detailData.value = {}
+      }
+    },
+    { immediate: true }
+  )
+  
   const handleClose = () => {
     emit('update:visible', false)
   }
   
-  // 默认工序列表 - 修改为包含更多数据的版本
-  const defaultProcesses = [
-    { name: '印刷', planQuantity: 500, completedQuantity: 150, completionRate: '30%' },
-    { name: '单门', planQuantity: 500, completedQuantity: 0, completionRate: '0%' },
-    { name: '喷码', planQuantity: 500, completedQuantity: 0, completionRate: '0%' },
-    { name: '烫金', planQuantity: 500, completedQuantity: 0, completionRate: '0%' },
-    { name: '模切', planQuantity: 500, completedQuantity: 0, completionRate: '0%' },
-    { name: '品检', planQuantity: 500, completedQuantity: 0, completionRate: '0%' },
-    { name: '包装', planQuantity: 500, completedQuantity: 0, completionRate: '0%' }
-  ]
+  // 默认工序列表
+  const defaultProcesses = []
   </script>
   
   <style lang="scss" scoped>
   //  @use "@/assets/screen/styles/_variables" as *;
   
   .order-detail-modal {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -148,7 +248,7 @@
     
     .modal-content {
       position: relative;
-      width: 900px;
+      width: 1100px;
       max-width: 90%;
       background-color: #001f3d;
       border-radius: 6px;
@@ -205,7 +305,7 @@
             font-size: 16px;
             margin-right: 8px; // 添加右侧间距
             white-space: nowrap; // 防止标签换行
-            width: 80px;
+            width: 110px;
           }
           
           .item-value {
