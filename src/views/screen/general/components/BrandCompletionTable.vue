@@ -6,7 +6,7 @@
         <thead>
           <tr>
             <th class="brand-name">品牌名称</th>
-            <th>品牌目标</th>
+            <th>目标</th>
             <th>配套烟箱</th>
             <th>完成率</th>
           </tr>
