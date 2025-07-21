@@ -296,8 +296,6 @@ const fetchData = async () => {
     initChart()
   } catch (error) {
     console.error('获取数据失败:', error)
-    // 错误时使用备用数据
-    fetchData()
   }
 }
 
