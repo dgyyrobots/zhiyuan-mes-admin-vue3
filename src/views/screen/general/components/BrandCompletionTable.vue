@@ -2,7 +2,7 @@
   <div class="brand-completion-table">
     <h3 class="table-title">年品牌完成率</h3>
     <div class="table-container">
-      <table>
+      <table v-if="tableData.length > 0">
         <thead>
           <tr>
             <th class="brand-name">品牌名称</th>
@@ -24,6 +24,9 @@
           </tr>
         </tbody>
       </table>
+      <div v-else class="no-data">
+        暂无年品牌完成率数据
+      </div>
     </div>
   </div>
 </template>
@@ -154,7 +157,19 @@ onUnmounted(() => {
     flex: 1;
     position: relative;
     overflow: auto;
-    
+    .no-data {
+    position: absolute;
+    top: 8%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #8BB4F7;
+    font-size: 16px;
+    text-align: center;
+    z-index: 99;
+    pointer-events: none;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards;
+  }
     table {
       width: 100%;
       border-collapse: collapse;
