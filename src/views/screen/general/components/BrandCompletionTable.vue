@@ -30,7 +30,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-// import { getBrandInProduction} from '@/api/output.js'
+import { getBrandList } from '@/api/screen/general/index'
 
 // 表格数据
 const tableData = ref([])
@@ -42,11 +42,11 @@ const REFRESH_INTERVAL = 8 * 60 * 60 * 1000
 
 const fetchData = async () => {
   try {
-    let res = {}
-    // const res = await getBrandInProduction()
-    if (res && res.code === 0 && res.data) {
+    const res = await getBrandList()
+    console.log(res,'rrrrr')
+    if (res) {
       // 转换接口数据为表格所需格式
-      tableData.value = res.data.map(item => ({
+      tableData.value = res.map(item => ({
         brandName: item['品牌名称'],
         target: formatInteger(item['品牌目标']),
         boxNum: formatInteger(item['配套烟箱'].toFixed(0)),
