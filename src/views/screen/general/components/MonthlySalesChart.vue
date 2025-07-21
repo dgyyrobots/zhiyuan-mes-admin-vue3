@@ -7,38 +7,15 @@
         暂无数据
       </div>
     </div>
-    <!-- <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>月份</th>
-            <th>目标</th>
-            <th>实际完成</th>
-            <th>完成比例</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, index) in tableData" :key="index">
-            <td>{{ item.month }}</td>
-            <td>{{ formatInteger(item.target) }}</td>
-            <td>{{ formatInteger(item.actual) }}</td>
-            <td>
-              <span :class="{'up': item.completionRate >= 100, 'down': item.completionRate < 100}">
-                {{ item.completionRate }}%
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div> -->
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import * as echarts from 'echarts'
-// import { getMonthlySalesData } from '@/api/sales.js' // 假设有这个API
 
+
+import { getSalesOrderTracking } from '@/api/screen/general/index'
 // 图表引用
 const chartRef = ref(null)
 let chart = null
@@ -261,27 +238,46 @@ const handleResize = () => {
 // 模拟数据，实际项目中应该从API获取
 const fetchData = async () => {
   try {
-    // 实际项目中应该调用API
-    // const res = await getMonthlySalesData()
+    // 调用真实API
+    const res = await getSalesOrderTracking()
+    console.log(res, 'API返回数据')
     
-    // 模拟数据
-    const mockData = [
-      { month: '1', target: 4, actual: 2, completionRate: 50 },
-      { month: '2', target: 4.5, actual: 2, completionRate: 44.44 },
-      { month: '3', target: 3.5, actual: 3, completionRate: 85.71 },
-      { month: '4', target: 4.5, actual: 5, completionRate: 111.11 },
-      { month: '5', target: 5, actual: 4.8, completionRate: 96 },
-      { month: '6', target: 5.5, actual: 6.2, completionRate: 112.73 },
-      { month: '7', target: 6, actual: 5.5, completionRate: 91.67 },
-      { month: '8', target: 5.8, actual: 6.5, completionRate: 112.07 },
-      { month: '9', target: 6.2, actual: 5.8, completionRate: 93.55 },
-      { month: '10', target: 6.5, actual: 7.2, completionRate: 110.77 },
-      { month: '11', target: 7, actual: 6.8, completionRate: 97.14 },
-      { month: '12', target: 8, actual: 8.5, completionRate: 106.25 }
-    ]
+    let processedData = []
+    
+    // 处理API返回的数据
+    if (res &&res .length) {
+      // 如果返回的是数组
+      if (Array.isArray(res)) {
+        processedData = res.map(item => ({
+          month: formatMonth(item.月份),
+          target: parseFloat((parseFloat(item.目标值) / 10000).toFixed(2)), // 转换为万箱并保留2位小数
+          actual: parseFloat((parseFloat(item.配套烟箱数量) / 10000).toFixed(2)), // 转换为万箱并保留2位小数
+          completionRate: parseFloat(parseFloat(item.完成率).toFixed(2)) // 保留2位小数
+        }))
+      } 
+    }
+    
+    // 如果没有数据，使用备用数据
+    if (processedData.length === 0) {
+      console.warn('API未返回有效数据，使用备用数据')
+      processedData = [
+        { month: '1', target: 0, actual: 0, completionRate: 0 },
+        { month: '2', target: 0, actual: 0, completionRate: 0  },
+        { month: '3', target: 0, actual: 0, completionRate: 0  },
+        { month: '4', target: 0, actual: 0, completionRate: 0 },
+        { month: '5', target: 0, actual: 0, completionRate: 0  },
+        { month: '6', target: 0, actual: 0, completionRate: 0 },
+        { month: '7', target: 0, actual: 0, completionRate: 0  },
+        { month: '8', target: 0, actual: 0, completionRate: 0  },
+        { month: '9', target: 0, actual: 0, completionRate: 0  },
+        { month: '10',target: 0, actual: 0, completionRate: 0  },
+        { month: '11',target: 0, actual: 0, completionRate: 0 },
+        { month: '12',target: 0, actual: 0, completionRate: 0  }
+      ]
+    }
     
     // 设置表格数据
-    tableData.value = mockData.map(item => ({
+    tableData.value = processedData.map(item => ({
       month: item.month + '月',
       target: item.target,
       actual: item.actual,
@@ -289,10 +285,10 @@ const fetchData = async () => {
     }))
     
     // 设置图表数据
-    chartData.value.xAxis = mockData.map(item => item.month + '月')
-    chartData.value.targetData = mockData.map(item => item.target)
-    chartData.value.actualData = mockData.map(item => item.actual)
-    chartData.value.completionRateData = mockData.map(item => parseFloat(item.completionRate.toFixed(2)))
+    chartData.value.xAxis = processedData.map(item => item.month + '月')
+    chartData.value.targetData = processedData.map(item => item.target)
+    chartData.value.actualData = processedData.map(item => item.actual)
+    chartData.value.completionRateData = processedData.map(item => parseFloat(item.completionRate.toFixed(2)))
     
     // 添加日志，查看最大完成率
     console.log('最大完成率:', Math.max(...chartData.value.completionRateData), '%')
@@ -300,7 +296,20 @@ const fetchData = async () => {
     initChart()
   } catch (error) {
     console.error('获取数据失败:', error)
+    // 错误时使用备用数据
+    fetchData()
   }
+}
+
+// 新增月份格式化函数
+const formatMonth = (monthStr) => {
+  if (!monthStr) return ''
+  // 处理 "2025-01" 格式，提取月份
+  if (monthStr.includes('-')) {
+    const parts = monthStr.split('-')
+    return parts[1] ? parseInt(parts[1]).toString() : ''
+  }
+  return monthStr
 }
 
 // 设置定时刷新

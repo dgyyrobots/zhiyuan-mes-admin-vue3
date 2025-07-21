@@ -20,4 +20,13 @@ export const getEmergencyOrderTrackingDetail = (params) => {
 export const getBrandList = (params) => {
   return request.get({ url: '/erp/dashboard-executive/getBrandCompletionRate', params })
 }
+// 销售看板
+export const getSalesOrderTracking = (params) => {
+  return request.get({ url: '/erp/dashboard-executive/getSalesOrderTracking', params })
+}
+
+// 生产看板
+export const getOutputOrderTracking = (params) => {
+  return request.get({ url: '/erp/dashboard-executive/getOutputOrderTracking', params })
+}
 
