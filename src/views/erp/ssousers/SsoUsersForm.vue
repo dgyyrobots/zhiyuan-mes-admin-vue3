@@ -4,7 +4,7 @@
       ref="formRef"
       :model="formData"
       :rules="formRules"
-      label-width="100px"
+      label-width="110px"
       v-loading="formLoading"
     >
       <el-form-item label="用户ID" prop="userId">
@@ -18,21 +18,6 @@
       </el-form-item>
       <el-form-item label="密码" prop="password">
         <el-input v-model="formData.password" placeholder="请输入密码" />
-      </el-form-item>
-      <el-form-item label="备用1" prop="standby1">
-        <el-input v-model="formData.standby1" placeholder="请输入备用1" />
-      </el-form-item>
-      <el-form-item label="备用2" prop="standby2">
-        <el-input v-model="formData.standby2" placeholder="请输入备用2" />
-      </el-form-item>
-      <el-form-item label="备用3" prop="standby3">
-        <el-input v-model="formData.standby3" placeholder="请输入备用3" />
-      </el-form-item>
-      <el-form-item label="备用4" prop="standby4">
-        <el-input v-model="formData.standby4" placeholder="请输入备用4" />
-      </el-form-item>
-      <el-form-item label="备用5" prop="standby5">
-        <el-input v-model="formData.standby5" placeholder="请输入备用5" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -60,11 +45,6 @@ const formData = ref({
   systemId: undefined,
   userName: undefined,
   password: undefined,
-  standby1: undefined,
-  standby2: undefined,
-  standby3: undefined,
-  standby4: undefined,
-  standby5: undefined,
 })
 const formRules = reactive({
   systemId: [{ required: true, message: '单点登录系统id不能为空', trigger: 'blur' }],
@@ -123,11 +103,6 @@ const resetForm = () => {
     systemId: undefined,
     userName: undefined,
     password: undefined,
-    standby1: undefined,
-    standby2: undefined,
-    standby3: undefined,
-    standby4: undefined,
-    standby5: undefined,
   }
   formRef.value?.resetFields()
 }

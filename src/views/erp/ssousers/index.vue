@@ -6,7 +6,7 @@
       :model="queryParams"
       ref="queryFormRef"
       :inline="true"
-      label-width="68px"
+      label-width="120px"
     >
       <el-form-item label="用户ID" prop="userId">
         <el-input
@@ -53,51 +53,6 @@
           end-placeholder="结束日期"
           :default-time="[new Date('1 00:00:00'), new Date('1 23:59:59')]"
           class="!w-220px"
-        />
-      </el-form-item>
-      <el-form-item label="备用1" prop="standby1">
-        <el-input
-          v-model="queryParams.standby1"
-          placeholder="请输入备用1"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
-        />
-      </el-form-item>
-      <el-form-item label="备用2" prop="standby2">
-        <el-input
-          v-model="queryParams.standby2"
-          placeholder="请输入备用2"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
-        />
-      </el-form-item>
-      <el-form-item label="备用3" prop="standby3">
-        <el-input
-          v-model="queryParams.standby3"
-          placeholder="请输入备用3"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
-        />
-      </el-form-item>
-      <el-form-item label="备用4" prop="standby4">
-        <el-input
-          v-model="queryParams.standby4"
-          placeholder="请输入备用4"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
-        />
-      </el-form-item>
-      <el-form-item label="备用5" prop="standby5">
-        <el-input
-          v-model="queryParams.standby5"
-          placeholder="请输入备用5"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
         />
       </el-form-item>
       <el-form-item>
@@ -156,11 +111,6 @@
         :formatter="dateFormatter"
         width="180px"
       />
-      <el-table-column label="备用1" align="center" prop="standby1" />
-      <el-table-column label="备用2" align="center" prop="standby2" />
-      <el-table-column label="备用3" align="center" prop="standby3" />
-      <el-table-column label="备用4" align="center" prop="standby4" />
-      <el-table-column label="备用5" align="center" prop="standby5" />
       <el-table-column label="操作" align="center" min-width="120px">
         <template #default="scope">
           <el-button
@@ -219,11 +169,6 @@ const queryParams = reactive({
   userName: undefined,
   password: undefined,
   createTime: [],
-  standby1: undefined,
-  standby2: undefined,
-  standby3: undefined,
-  standby4: undefined,
-  standby5: undefined,
 })
 const queryFormRef = ref() // 搜索的表单
 const exportLoading = ref(false) // 导出的加载中

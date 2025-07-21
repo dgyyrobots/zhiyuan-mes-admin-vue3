@@ -6,7 +6,7 @@
       :model="queryParams"
       ref="queryFormRef"
       :inline="true"
-      label-width="68px"
+      label-width="108px"
     >
       <el-form-item label="系统图标" prop="systemImg">
         <el-input
@@ -55,51 +55,6 @@
           class="!w-220px"
         />
       </el-form-item>
-      <el-form-item label="备用1" prop="standby1">
-        <el-input
-          v-model="queryParams.standby1"
-          placeholder="请输入备用1"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
-        />
-      </el-form-item>
-      <el-form-item label="备用2" prop="standby2">
-        <el-input
-          v-model="queryParams.standby2"
-          placeholder="请输入备用2"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
-        />
-      </el-form-item>
-      <el-form-item label="备用3" prop="standby3">
-        <el-input
-          v-model="queryParams.standby3"
-          placeholder="请输入备用3"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
-        />
-      </el-form-item>
-      <el-form-item label="备用4" prop="standby4">
-        <el-input
-          v-model="queryParams.standby4"
-          placeholder="请输入备用4"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
-        />
-      </el-form-item>
-      <el-form-item label="备用5" prop="standby5">
-        <el-input
-          v-model="queryParams.standby5"
-          placeholder="请输入备用5"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
-        />
-      </el-form-item>
       <el-form-item>
         <el-button @click="handleQuery"><Icon icon="ep:search" class="mr-5px" /> 搜索</el-button>
         <el-button @click="resetQuery"><Icon icon="ep:refresh" class="mr-5px" /> 重置</el-button>
@@ -145,7 +100,24 @@
     >
     <el-table-column type="selection" width="55" />
       <el-table-column label="系统编号" align="center" prop="id" />
-      <el-table-column label="系统图标" align="center" prop="systemImg" />
+      <!-- <el-table-column label="系统图标" align="center" prop="systemImg" /> -->
+
+      <el-table-column align="center" label="系统图标" width="120px">
+        <template #default="{ row }">
+          <el-avatar 
+            v-if="row.systemImg" 
+            :src="row.systemImg" 
+            :size="40" 
+            fit="cover"
+            @error="() => true"
+          >
+            <Icon icon="ep:picture" />
+          </el-avatar>
+          <el-avatar v-else :size="40">
+            <Icon icon="ep:picture" />
+          </el-avatar>
+        </template>
+      </el-table-column>
       <el-table-column label="系统名称" align="center" prop="systemName" />
       <el-table-column label="内部访问网址" align="center" prop="internalLink" />
       <el-table-column label="外部访问网址" align="center" prop="externalLink" />
@@ -156,11 +128,6 @@
         :formatter="dateFormatter"
         width="180px"
       />
-      <el-table-column label="备用1" align="center" prop="standby1" />
-      <el-table-column label="备用2" align="center" prop="standby2" />
-      <el-table-column label="备用3" align="center" prop="standby3" />
-      <el-table-column label="备用4" align="center" prop="standby4" />
-      <el-table-column label="备用5" align="center" prop="standby5" />
       <el-table-column label="操作" align="center" min-width="120px">
         <template #default="scope">
           <el-button
@@ -219,11 +186,6 @@ const queryParams = reactive({
   internalLink: undefined,
   externalLink: undefined,
   createTime: [],
-  standby1: undefined,
-  standby2: undefined,
-  standby3: undefined,
-  standby4: undefined,
-  standby5: undefined,
 })
 const queryFormRef = ref() // 搜索的表单
 const exportLoading = ref(false) // 导出的加载中
