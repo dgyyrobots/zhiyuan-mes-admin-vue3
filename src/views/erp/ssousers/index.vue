@@ -17,14 +17,20 @@
           class="!w-240px"
         />
       </el-form-item>
-      <el-form-item label="单点登录系统id" prop="systemId">
-        <el-input
+      <el-form-item label="单点登录系统" prop="systemId">
+        <el-select
           v-model="queryParams.systemId"
-          placeholder="请输入单点登录系统id"
+          placeholder="请选择单点登录系统"
           clearable
-          @keyup.enter="handleQuery"
           class="!w-240px"
-        />
+        >
+          <el-option
+            v-for="item in systemOptions"
+            :key="item.id"
+            :label="item.systemName"
+            :value="item.id"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="用户名称" prop="userName">
         <el-input
@@ -101,7 +107,11 @@
     <el-table-column type="selection" width="55" />
       <el-table-column label="编号" align="center" prop="id" />
       <el-table-column label="用户ID" align="center" prop="userId" />
-      <el-table-column label="单点登录系统id" align="center" prop="systemId" />
+      <el-table-column label="单点登录系统" align="center" prop="systemId">
+        <template #default="scope">
+          {{ getSystemName(scope.row.systemId) }}
+        </template>
+      </el-table-column>
       <el-table-column label="用户名称" align="center" prop="userName" />
       <el-table-column label="密码" align="center" prop="password" />
       <el-table-column
@@ -150,6 +160,8 @@ import { isEmpty } from '@/utils/is'
 import { dateFormatter } from '@/utils/formatTime'
 import download from '@/utils/download'
 import { SsoUsersApi, SsoUsers } from '@/api/erp/ssousers'
+import { SsoSystemApi, SsoSystem } from '@/api/erp/ssosystem'
+
 import SsoUsersForm from './SsoUsersForm.vue'
 
 /** 单点登录用户 列表 */
@@ -161,6 +173,7 @@ const { t } = useI18n() // 国际化
 const loading = ref(true) // 列表的加载中
 const list = ref<SsoUsers[]>([]) // 列表的数据
 const total = ref(0) // 列表的总页数
+const systemOptions = ref<SsoSystem[]>([]) // 系统选项数据
 const queryParams = reactive({
   pageNo: 1,
   pageSize: 10,
@@ -172,6 +185,25 @@ const queryParams = reactive({
 })
 const queryFormRef = ref() // 搜索的表单
 const exportLoading = ref(false) // 导出的加载中
+
+/** 获取系统列表 */
+const getSystemList = async () => {
+  try {
+    const data = await SsoSystemApi.getSsoSystemPage({
+      pageNo: 1,
+      pageSize: 100 // 获取所有系统
+    })
+    systemOptions.value = data.list
+  } catch (error) {
+    console.error('获取系统列表失败:', error)
+  }
+}
+
+/** 根据系统ID获取系统名称 */
+const getSystemName = (systemId: number) => {
+  const system = systemOptions.value.find(item => item.id === systemId)
+  return system ? system.systemName : systemId
+}
 
 /** 查询列表 */
 const getList = async () => {
@@ -249,6 +281,7 @@ const handleExport = async () => {
 
 /** 初始化 **/
 onMounted(() => {
+  getSystemList()
   getList()
 })
 </script>
