@@ -109,7 +109,7 @@ const openUrl = async (item: CardItem) => {
         });
         if (res && res.accessToken) {
           // 参照main.html中的URL格式，使用token参数
-          window.open(`${url}/login?tenant-id=${res.tenantId}&token=${res.accessToken}`, '_blank');
+          window.open(`${url}login?tenant-id=${res.tenantId}&token=${res.accessToken}`, '_blank');
         } else {
           ElMessage.error(res?.msg || '自动登录失败');
         }
@@ -123,7 +123,7 @@ const openUrl = async (item: CardItem) => {
           });
           const zy_accessToken = zyres
           if (zy_accessToken) {
-            window.open(`${url}/outside/oauth_login/action:login/access_token:` + zy_accessToken, "_blank");
+            window.open(`${url}outside/oauth_login/action:login/access_token:` + zy_accessToken, "_blank");
           } else {
           ElMessage.error(zyres?.msg || '自动登录失败');
         }
@@ -137,7 +137,7 @@ const openUrl = async (item: CardItem) => {
           });
          const dh_accessToken = dhres
           if (dh_accessToken) {
-            window.open(`${url}/outside/oauth_login/action:login/access_token:` + dh_accessToken, "_blank");
+            window.open(`${url}outside/oauth_login/action:login/access_token:` + dh_accessToken, "_blank");
           } else {
           ElMessage.error(dhres?.msg || '自动登录失败');
         }
@@ -152,7 +152,7 @@ const openUrl = async (item: CardItem) => {
           const hr_accessToken = hrres
           if (hr_accessToken) {
             // 使用window.open在新标签页中打开
-            window.open(`${window.location.origin}/HRAutoLogin?encJsonData=${encodeURIComponent(hr_accessToken)}`, '_blank');
+            window.open(`${url}HRAutoLogin?encJsonData=${encodeURIComponent(hr_accessToken)}`, '_blank');
 
             // window.open(`http://172.16.12.101:9000/ammes/HRAutoLogin.html?encJsonData=${encodeURIComponent(hr_accessToken)}`, '_blank');
           } else {
