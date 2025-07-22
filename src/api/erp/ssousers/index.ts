@@ -37,6 +37,10 @@ export const SsoUsersApi = {
     return await request.put({ url: `/erp/sso-users/update`, data })
   },
 
+  // 新增或者修改单点登录用户
+  addOrUpdateSsoUsers: async (data: SsoUsers) => {
+    return await request.post({ url: `/erp/sso-users/createOrUpdate`, data })
+  },
   // 删除单点登录用户
   deleteSsoUsers: async (id: number) => {
     return await request.delete({ url: `/erp/sso-users/delete?id=` + id })
@@ -51,4 +55,4 @@ export const SsoUsersApi = {
   exportSsoUsers: async (params) => {
     return await request.download({ url: `/erp/sso-users/export-excel`, params })
   },
-}
+}

@@ -21,13 +21,13 @@
         <div class="card-content" @click="openUrl(item)">
           <div class="card-icon">
             <el-avatar
-             :src="item.systemImg"
+             :src="item.sysLogUrl"
              :size="70"
              />
           </div>
-          <div class="card-name">{{ item.systemName }}</div>
+          <div class="card-name">{{ item.sysName }}</div>
         </div>
-        <div class="card-setting" @click.stop="openSettingDialog(item)"  v-hasPermi="['erp:sso-users:createOrUpdate']">
+        <div class="card-setting" @click.stop="openSettingDialog(item)">
           <Icon icon="ep:setting" :size="16" />
         </div>
       </div>
@@ -71,21 +71,19 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted } from 'vue';
-import { SsoSystemApi } from '@/api/erp/ssosystem';
-import { SsoUsersApi } from '@/api/erp/ssousers';
-
 import * as HomeApi from '@/api/system/homeSet';
 import { View, Hide } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
+import router from '@/router';
 // 定义卡片项的接口
 interface CardItem {
   userName: string;
   password: string;
-  id:string,
-  systemName:string,
-  systemImg:string,
-  internalLink:string,
-  externalLink:string
+  sysId:string,
+  sysName:string,
+  sysLogUrl:string,
+  sysUrl:string,
+  sysUrlNet:string
 }
 
 // 卡片数据列表
@@ -93,19 +91,23 @@ const cardList = ref<CardItem[]>([]);
 
 // 打开URL到新标签页
 const openUrl = async (item: CardItem) => {
-
-  const url = networkType.value==='内网'? item.internalLink : item.externalLink  // externalLink 是外网, internalLink 是内网
+  if (!item.userName || !item.password) {
+    ElMessage.error('请先设置账号和密码');
+    return;
+  }
+  const url = networkType.value==='内网'? item.sysUrl : item.sysUrlNet  // sysUrlNet 是外网, sysUrl 是内网
   if(!url) {
     ElMessage.error(`未获取跳转路径,请切换成${networkType.value==='内网'?'外网':'内网'}模式!`);
     return;
   }
   try {
-    switch (item.systemName) {
+    switch (item.sysName) {
       case '澳美MES':
         // 调用自动登录接口
-        const res = await SsoSystemApi.getSsoSystemToken({
-          inside: networkType.value==='内网'?true:false,
-          id:item.id
+        const res = await HomeApi.amMesAutoLogin({
+          userName: item.userName,
+          password: item.password,
+          net: networkType.value
         });
         if (res && res.accessToken) {
           // 参照main.html中的URL格式，使用token参数
@@ -117,9 +119,10 @@ const openUrl = async (item: CardItem) => {
 
         case '智源MES':
           // 调用自动登录接口
-          const zyres = await SsoSystemApi.getSsoSystemToken({
-            inside: networkType.value==='内网'?true:false,
-            id:item.id
+          const zyres = await HomeApi.zyMesAutoLogin({
+            appId: item.userName,
+            account: item.password,
+            net: networkType.value
           });
           const zy_accessToken = zyres
           if (zy_accessToken) {
@@ -131,11 +134,12 @@ const openUrl = async (item: CardItem) => {
 
         case '东合MES':
         // 调用自动登录接口
-         const dhres = await SsoSystemApi.getSsoSystemToken({
-            inside: networkType.value==='内网'?true:false,
-            id:item.id
+         const dhres = await HomeApi.dhMesAutoLogin({
+            appId: item.userName,
+            account: item.password,
+            net: networkType.value
           });
-         const dh_accessToken = dhres
+          const dh_accessToken = dhres
           if (dh_accessToken) {
             window.open(`${url}/outside/oauth_login/action:login/access_token:` + dh_accessToken, "_blank");
           } else {
@@ -145,9 +149,10 @@ const openUrl = async (item: CardItem) => {
 
         case '智源HR':
         // 调用自动登录接口
-         const hrres = await SsoSystemApi.getSsoSystemToken({
-            inside: networkType.value==='内网'?true:false,
-            id:item.id
+         const hrres = await HomeApi.zyHrAutoLogin({
+            userName: item.userName,
+            password: item.password,
+            net: networkType.value
           });
           const hr_accessToken = hrres
           if (hr_accessToken) {
@@ -161,7 +166,7 @@ const openUrl = async (item: CardItem) => {
         break;
       default:
         // 其他系统的处理逻辑
-        window.open(item.internalLink, '_blank');
+        window.open(item.sysUrl, '_blank');
         break;
     }
   } catch (error) {
@@ -177,7 +182,7 @@ const passwordVisible = ref(false); // 控制密码显示/隐藏
 const settingForm = reactive({
   userName: '',
   password: '',
-  id:""
+  sysId:""
 });
 
 // 打开设置弹框
@@ -186,7 +191,7 @@ const openSettingDialog = (item: CardItem) => {
   // 这里可以根据实际情况加载已保存的账号密码
   settingForm.userName = item.userName;
   settingForm.password = item.password;
-  settingForm.id = item.id ;
+  settingForm.sysId = item.sysId ;
   dialogVisible.value = true;
 };
 
@@ -197,14 +202,12 @@ const saveSettings = async () => {
       const params = {
         userName: settingForm.userName,
         password: settingForm.password,
-        systemId: settingForm.id
+        sysId: settingForm.sysId
       };
       
-      // const res = await HomeApi.registerAccountPwd(params);
-      const res = await SsoUsersApi.addOrUpdateSsoUsers(params);
+      const res = await HomeApi.registerAccountPwd(params);
       
-      console.log(res,'rrrrr')
-      if (res.code === 0) {
+      if (res === '账号密码设置完成') {
         ElMessage.success('账号密码保存成功');
         // 更新当前项的账号密码
         if (currentItem.value) {
@@ -236,12 +239,10 @@ const handleNetworkChange = async () => {
 
 const getList = async () => {
   console.log('getList111111')
-  const res = await SsoSystemApi.getSsoSystemPage()
+  const res = await HomeApi.getJumpList()
   console.log(res,'ddddddddddddd')
-  if (res.list) {
-    cardList.value = res.list
-  } else {
-   cardList.value = []
+  if (res.code === 0) {
+    cardList.value = res.data
   }
 }
 onMounted(async () => {

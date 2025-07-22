@@ -26,7 +26,10 @@ export const SsoSystemApi = {
   getSsoSystem: async (id: number) => {
     return await request.get({ url: `/erp/sso-system/get?id=` + id })
   },
-
+  // 查询单点登录系统详情
+  getSsoSystemToken: async (params: any) => {
+    return await request.get({ url: `/erp/sso-system/getSystemToken` ,params })
+  },
   // 新增单点登录系统
   createSsoSystem: async (data: SsoSystem) => {
     return await request.post({ url: `/erp/sso-system/create`, data })
@@ -51,4 +54,4 @@ export const SsoSystemApi = {
   exportSsoSystem: async (params) => {
     return await request.download({ url: `/erp/sso-system/export-excel`, params })
   },
-}
+}
