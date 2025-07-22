@@ -70,7 +70,11 @@ const formRef = ref() // 表单 Ref
 /** 获取系统列表 */
 const getSystemList = async () => {
   try {
-    const data = await SsoSystemApi.getSsoSystemPage({})
+    const params = {
+      pageNo: 1,
+      pageSize: 100 // 获取所有系统
+    }
+    const data = await SsoSystemApi.getSsoSystemPage(params)
     systemOptions.value = data.list || []
   } catch (error) {
     console.error('获取系统列表失败:', error)
