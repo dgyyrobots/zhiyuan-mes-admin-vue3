@@ -7,14 +7,13 @@
       label-width="110px"
       v-loading="formLoading"
     >
-      <el-form-item label="用户ID" prop="userId">
-        <el-input v-model="formData.userId" placeholder="请输入用户ID" />
+      <el-form-item label="用户ID" prop="userId" v-if="formType!=='create'">
+        <el-input disabled v-model="formData.userId" placeholder="请输入用户ID" />
       </el-form-item>
       <el-form-item label="单点登录系统" prop="systemId">
         <el-select 
           v-model="formData.systemId" 
           placeholder="请选择单点登录系统"
-          clearable
           style="width: 100%"
         >
           <el-option

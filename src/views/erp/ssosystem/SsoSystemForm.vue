@@ -4,7 +4,7 @@
       ref="formRef"
       :model="formData"
       :rules="formRules"
-      label-width="100px"
+      label-width="120px"
       v-loading="formLoading"
     >
       <!-- <el-form-item label="系统图标" prop="systemImg">
