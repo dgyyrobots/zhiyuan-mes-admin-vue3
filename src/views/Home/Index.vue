@@ -103,15 +103,15 @@ const openUrl = async (item: CardItem) => {
     switch (item.systemName) {
       case '澳美MES':
         // 调用自动登录接口
-        const res = await SsoSystemApi.getSsoSystemToken({
+        const accessToken = await SsoSystemApi.getSsoSystemToken({
           inside: networkType.value==='内网'?true:false,
           id:item.id
         });
-        if (res && res.accessToken) {
+        if (accessToken) {
           // 参照main.html中的URL格式，使用token参数
-          window.open(`${url}login?tenant-id=${res.tenantId}&token=${res.accessToken}`, '_blank');
+          window.open(`${url}login?tenant-id=${158}&token=${accessToken}`, '_blank');
         } else {
-          ElMessage.error(res?.msg || '自动登录失败');
+          ElMessage.error(accessToken?.msg || '自动登录失败');
         }
         break;
 
@@ -152,7 +152,7 @@ const openUrl = async (item: CardItem) => {
           const hr_accessToken = hrres
           if (hr_accessToken) {
             // 使用window.open在新标签页中打开
-            window.open(`${url}HRAutoLogin?encJsonData=${encodeURIComponent(hr_accessToken)}`, '_blank');
+            window.open(`${window.location.origin}/HRAutoLogin?encJsonData=${encodeURIComponent(hr_accessToken)}`, '_blank');
 
             // window.open(`http://172.16.12.101:9000/ammes/HRAutoLogin.html?encJsonData=${encodeURIComponent(hr_accessToken)}`, '_blank');
           } else {
