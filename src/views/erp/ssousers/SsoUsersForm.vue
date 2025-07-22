@@ -15,6 +15,7 @@
           v-model="formData.systemId" 
           placeholder="请选择单点登录系统"
           style="width: 100%"
+          disabled
         >
           <el-option
             v-for="item in systemOptions"
