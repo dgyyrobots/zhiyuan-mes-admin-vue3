@@ -126,65 +126,35 @@ const resetForm = () => {
 }
 
 
-/** 处理头像上传成功的回调 -- 上传图片到服务器*/
-// const handleAvatarChange = async ({ source, data, filename }) => {
-//   console.log('头像上传成功', source);
-
-//   try {
-//     // 使用接口上传图片而不是直接使用base64
-//     const { httpRequest } = useUpload()
-//     const logoUrl = ((await httpRequest({
-//       file: data,
-//       filename: 'sysLogo.png',
-//     } as UploadRequestOptions)) as unknown as { data: string }).data
-
-//     // 使用接口返回的URL替代base64
-//     formData.value.systemImg = logoUrl;
-//     console.log('图片上传成功，URL:', logoUrl);
-//   } catch (error) {
-//     console.error('图片上传失败:', error);
-//     message.error('图片上传失败');
-//   }
-  
-//   // 不关闭弹框
-//   // handleCropperClose();
-  
-//   // 不隐藏遮罩
-//   // if (fullScreenBlocker.value) {
-//   //   fullScreenBlocker.value.style.display = 'none';
-//   // }
-// }
-/** 处理头像上传成功的回调-- 上传图片直接使用base64 */
+/** 处理头像上传成功的回调 */
 const handleAvatarChange = async ({ source, data, filename }) => {
   console.log('头像上传成功', source);
 
   try {
-    // 直接使用base64格式，不再上传到接口
-    if (source && typeof source === 'string') {
-      // 如果source是base64格式，直接使用
-      formData.value.systemImg = source;
-      console.log('使用base64格式图片');
-    } else if (data) {
-      // 如果data是File对象，转换为base64
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        formData.value.systemImg = e.target?.result as string;
-        console.log('图片转换为base64成功');
-      };
-      reader.onerror = () => {
-        console.error('图片转换为base64失败');
-        message.error('图片处理失败');
-      };
-      reader.readAsDataURL(data);
-    } else {
-      console.error('未找到有效的图片数据');
-      message.error('图片数据无效');
-    }
+    // 使用接口上传图片而不是直接使用base64
+    const { httpRequest } = useUpload()
+    const logoUrl = ((await httpRequest({
+      file: data,
+      filename: 'sysLogo.png',
+    } as UploadRequestOptions)) as unknown as { data: string }).data
+
+    // 使用接口返回的URL替代base64
+    formData.value.systemImg = logoUrl;
+    console.log('图片上传成功，URL:', logoUrl);
   } catch (error) {
-    console.error('图片处理失败:', error);
-    message.error('图片处理失败');
+    console.error('图片上传失败:', error);
+    message.error('图片上传失败');
   }
-};
+  
+  // 不关闭弹框
+  // handleCropperClose();
+  
+  // 不隐藏遮罩
+  // if (fullScreenBlocker.value) {
+  //   fullScreenBlocker.value.style.display = 'none';
+  // }
+}
+
 </script>
 
 
