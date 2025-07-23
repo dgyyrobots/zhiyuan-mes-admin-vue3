@@ -39,7 +39,7 @@ export const SsoUsersApi = {
 
   // 新增或者修改单点登录用户
   addOrUpdateSsoUsers: async (data: SsoUsers) => {
-    return await request.post({ url: `/erp/sso-users/createOrUpdate`, data })
+    return await request.postOriginal({ url: `/erp/sso-users/createOrUpdate`, data })
   },
   // 删除单点登录用户
   deleteSsoUsers: async (id: number) => {

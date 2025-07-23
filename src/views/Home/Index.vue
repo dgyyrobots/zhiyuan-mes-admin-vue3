@@ -203,8 +203,7 @@ const saveSettings = async () => {
       // const res = await HomeApi.registerAccountPwd(params);
       const res = await SsoUsersApi.addOrUpdateSsoUsers(params);
       
-      console.log(res,'rrrrr')
-      if (res=== 1) {
+      if (res && res.code=== 0) {
         ElMessage.success('账号密码保存成功');
         // 更新当前项的账号密码
         if (currentItem.value) {
