@@ -27,7 +27,7 @@
           </div>
           <div class="card-name">{{ item.systemName }}</div>
         </div>
-        <div class="card-setting" @click.stop="openSettingDialog(item)"  v-hasPermi="['erp:sso-users:createOrUpdate']">
+        <div class="card-setting" @click.stop="openSettingDialog(item)">
           <Icon icon="ep:setting" :size="16" />
         </div>
       </div>
