@@ -99,7 +99,7 @@
         @selection-change="handleRowCheckboxChange"
     >
     <el-table-column type="selection" width="55" />
-      <el-table-column label="系统id" align="center" prop="id" />
+      <!-- <el-table-column label="系统id" align="center" prop="id" /> -->
       <!-- <el-table-column label="系统图标" align="center" prop="systemImg" /> -->
 
       <el-table-column align="center" label="系统图标" width="120px">
