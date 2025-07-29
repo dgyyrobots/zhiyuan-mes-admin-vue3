@@ -215,6 +215,16 @@ const remainingRouter: AppRouteRecordRaw[] = [
     }
   },
   {
+    path: '/amAutoLogin',
+    component: () => import('@/views/Home/AMAutologin.vue'),
+    name: 'AMAutoLogin',
+    meta: {
+      hidden: true,
+      title: 'AM自动登录',
+      noTagsView: true
+    }
+  },
+  {
     path: '/403',
     component: () => import('@/views/Error/403.vue'),
     name: 'NoAccess',

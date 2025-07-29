@@ -54,7 +54,8 @@ const whiteList = [
   '/bind',
   '/register',
   '/oauthLogin/gitee',
-  '/hrAutoLogin'
+  '/hrAutoLogin',
+  '/amAutoLogin',
 ]
 
 // 路由加载前

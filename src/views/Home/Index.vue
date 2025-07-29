@@ -152,11 +152,26 @@ const openUrl = async (item: CardItem) => {
           const hr_accessToken = hrres
           if (hr_accessToken) {
             // 使用window.open在新标签页中打开
-            window.open(`${window.location.origin}/HRAutoLogin?encJsonData=${encodeURIComponent(hr_accessToken)}`, '_blank');
+            window.open(`${window.location.origin}/hrAutoLogin?encJsonData=${encodeURIComponent(hr_accessToken)}`, '_blank');
 
             // window.open(`http://172.16.12.101:9000/ammes/HRAutoLogin.html?encJsonData=${encodeURIComponent(hr_accessToken)}`, '_blank');
           } else {
           ElMessage.error(hrres?.msg || '自动登录失败');
+        }
+        break;
+
+        case '集团OA系统':
+        // 调用自动登录接口
+         const oares = await SsoSystemApi.getSsoSystemToken({
+            inside: networkType.value==='内网'?true:false,
+            id:item.id
+          });
+          const oa_accessToken = oares
+          if (oa_accessToken) {
+            // 使用window.open在新标签页中打开
+            window.open(`${window.location.origin}/amAutoLogin?logininfo=${oa_accessToken}`, '_blank');
+          } else {
+          ElMessage.error(oares?.msg || '自动登录失败');
         }
         break;
       default:
