@@ -1,5 +1,10 @@
 <template>
-  <div class="container-fluid login-container no-padding">
+  <div class="container">
+    <h1>正在登录</h1>
+    <div class="spinner"></div>
+    <p class="message">请稍候，正在为您跳转到登录页面...</p>
+  </div>
+  <div style="display: none;">
     <div class="row center-block">
       <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 no-padding">
       </div>
@@ -61,13 +66,6 @@
                       title="登录" 
                       value="登录" 
                     />
-                    <div 
-                      id="encrypted-password" 
-                      v-show="showEncryptedPassword"
-                      style="margin-top: 10px; padding: 10px; background-color: #f5f5f5; border: 1px solid #ddd; word-break: break-all; font-family: monospace; font-size: 12px;"
-                    >
-                      {{ encryptedPassword }}
-                    </div>
                   </div>
                 </div>
               </div>
@@ -143,6 +141,7 @@ const checkForm = () => {
 function onLoad() {
   // 通过url获取值
   const params = route.query.logininfo
+  console.log(params,'ddd')  // eyJwIjoiYWRtaW4xMjMiLCJ1IjoiYWRtaW4ifQ==
   
   // 解码 base64 字符串
   if (params) {
@@ -155,14 +154,21 @@ function onLoad() {
       const loginInfo = JSON.parse(decodedString)
       console.log('解析后的对象:', loginInfo)
       
-      // 现在你可以使用这个对象了
-      // 例如：设置表单数据
+      // 设置表单数据
       if (loginInfo.u) {
         formData.username = loginInfo.u
       }
       if (loginInfo.p) {
         formData.password = loginInfo.p
       }
+      
+      // 等待DOM更新后自动提交表单
+      nextTick(() => {
+        // 自动触发登录
+        if (checkForm()) {
+          form1.value.submit()
+        }
+      })
     } catch (error) {
       console.error('解码失败:', error)
     }
@@ -177,4 +183,55 @@ onMounted(() => {
 </script>
 
 <style scoped>
-</style>
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: "Helvetica Neue", sans-serif;
+  color: #333;
+}
+
+.container {
+  text-align: center;
+  background: white;
+  padding: 40px 60px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 1s ease-in-out;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 400px;
+}
+
+.spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  margin: 20px auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9) translate(-50%, -50%); }
+  to { opacity: 1; transform: scale(1) translate(-50%, -50%); }
+}
+
+.message {
+  font-size: 1.2em;
+  margin-top: 10px;
+}
+</style> 
