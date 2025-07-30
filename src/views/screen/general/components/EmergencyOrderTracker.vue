@@ -267,9 +267,16 @@ onUnmounted(() => {
     overflow-y: auto;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); // 增加最小宽度
-    gap: 16px;
+    gap: 8px;
     padding: 4px;
+      // 使用 grid-auto-rows 控制行高
+    grid-auto-rows: min-content; // 让行高适应内容
+    // 或者设置固定行高
+    // grid-auto-rows: 180px;
     
+    // 设置合适的高度
+    height: fit-content;
+    min-height: 300px;
     // 卡片样式
     .order-card {
       background-color: rgba(0, 31, 63, 0.5);
@@ -282,7 +289,7 @@ onUnmounted(() => {
       flex-direction: column;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       min-height: 160px; // 设置最小高度确保卡片大小一致
-      
+      max-height: 180px;
       &:hover {
         transform: translateY(-3px);
         box-shadow: 0 4px 12px rgba(90, 141, 238, 0.3);

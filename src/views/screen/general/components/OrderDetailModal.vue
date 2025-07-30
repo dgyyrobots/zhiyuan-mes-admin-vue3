@@ -169,7 +169,7 @@
   const formatPercentage = (value) => {
     if (value === null || value === undefined) return '-'
     const num = parseFloat(value)
-    return num === 0 ? '0%' : `${(num * 100).toFixed(1)}%`
+    return num === 0 ? '0%' : `${(num).toFixed(1)}%`
   }
   
   // 获取工单详情
