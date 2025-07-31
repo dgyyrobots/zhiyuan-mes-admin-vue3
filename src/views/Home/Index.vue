@@ -42,7 +42,7 @@
       <el-form :model="settingForm" label-width="80px">
         <el-form-item label="账号">
           <el-input v-model="settingForm.userName" placeholder="请输入账号" />
-          <span class="tips" v-if="currentItem.systemName==='集团企业邮箱'">提示: 请输入正确的邮箱前缀;如test@amvig.com.cn,需输入test</span>
+          <span class="tips" v-if="currentItem.systemName==='集团企业邮箱'">提示: 请输入正确的邮箱前缀；如 test@amvig.com.cn，需输入test</span>
         </el-form-item>
         <el-form-item label="密码">
           <el-input 
