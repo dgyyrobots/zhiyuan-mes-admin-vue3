@@ -174,6 +174,19 @@ const openUrl = async (item: CardItem) => {
           ElMessage.error(oares?.msg || '自动登录失败');
         }
         break;
+
+        case '集团企业邮箱':
+        // 调用自动登录接口
+         const emailres = await SsoSystemApi.getSsoSystemToken({
+            inside: networkType.value==='内网'?true:false,
+            id:item.id
+          });
+          if (emailres) {
+            window.open(`https://entryhz.qiye.163.com/login/ssoLogin?sso_token=${emailres}&lang=0`, '_blank');
+          } else {
+          ElMessage.error(emailres?.msg || '自动登录失败');
+        }
+        break;
       default:
         // 其他系统的处理逻辑
         window.open(item.internalLink, '_blank');
@@ -249,9 +262,7 @@ const handleNetworkChange = async () => {
 };
 
 const getList = async () => {
-  console.log('getList111111')
   const res = await SsoSystemApi.getSsoSystemPage()
-  console.log(res,'ddddddddddddd')
   if (res.list) {
     cardList.value = res.list
   } else {
