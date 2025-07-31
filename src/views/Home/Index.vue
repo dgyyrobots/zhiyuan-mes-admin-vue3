@@ -37,11 +37,12 @@
     <el-dialog
       v-model="dialogVisible"
       title="账号设置"
-      width="450px"
+      width="650px"
     >
       <el-form :model="settingForm" label-width="80px">
         <el-form-item label="账号">
           <el-input v-model="settingForm.userName" placeholder="请输入账号" />
+          <span class="tips" v-if="currentItem.systemName==='集团企业邮箱'">提示: 请输入正确的邮箱前缀;如test@amvig.com.cn,需输入test</span>
         </el-form-item>
         <el-form-item label="密码">
           <el-input 
@@ -85,7 +86,7 @@ interface CardItem {
   systemName:string,
   systemImg:string,
   internalLink:string,
-  externalLink:string
+  externalLink:string,
 }
 
 // 卡片数据列表
@@ -194,7 +195,7 @@ const openUrl = async (item: CardItem) => {
     }
   } catch (error) {
     console.error('自动登录出错:', error);
-    ElMessage.error('自动登录失败，请稍后重试');
+    ElMessage.error('自动登录失败');
   }
 };
 
@@ -210,7 +211,9 @@ const settingForm = reactive({
 
 // 打开设置弹框
 const openSettingDialog = (item: CardItem) => {
+
   currentItem.value = item;
+  console.log(currentItem.value,'currentItem.value')
   // 这里可以根据实际情况加载已保存的账号密码
   settingForm.userName = item.userName;
   settingForm.password = item.password;
@@ -401,5 +404,9 @@ onMounted(async () => {
   &:hover {
     color: #409EFF;
   }
+}
+.tips {
+  font-size: 14px;
+  color: #ee4907;
 }
 </style>
