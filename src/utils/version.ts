@@ -1,5 +1,7 @@
+import pkg from '../../package.json';
+
 export const showVersionInfo = () => {
-  const version = '1.0.8';
+  const version = pkg.version;
   const buildTime = '2025-08-01 08:30';
   
   // 修复样式输出问题

@@ -3,6 +3,9 @@ import type {ConfigEnv, UserConfig} from 'vite'
 import {loadEnv} from 'vite'
 import {createVitePlugins} from './build/vite'
 import {exclude, include} from "./build/vite/optimize"
+// 导入 package.json 获取版本号
+import pkg from './package.json'
+
 // 当前执行node命令时文件夹的地址(工作目录)
 const root = process.cwd()
 
@@ -23,6 +26,11 @@ export default ({command, mode}: ConfigEnv): UserConfig => {
     return {
         base: env.VITE_BASE_PATH,
         root: root,
+        // 定义全局常量，自动注入版本号
+        define: {
+            __APP_VERSION__: JSON.stringify(pkg.version),
+            __APP_NAME__: JSON.stringify(pkg.name)
+        },
         // 服务端渲染
         server: {
             port: env.VITE_PORT, // 端口号

@@ -33,3 +33,7 @@ declare global {
     readonly env: ImportMetaEnv
   }
 }
+
+// 添加全局常量类型声明
+declare const __APP_VERSION__: string
+declare const __APP_NAME__: string
