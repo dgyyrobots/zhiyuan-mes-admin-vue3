@@ -10,7 +10,7 @@ export const showVersionInfo = () => {
   
   console.log(`%c🕒 构建时间: ${buildTime}`, 'color: #409EFF; font-weight: normal;');
   
-  console.log('%c© 2025 东莞市云燚机器人有限公司 Inc. All Rights Reserved.', 
+  console.log('%c© 2025 东莞市云燚机器人有限公司. All Rights Reserved.', 
     'color: #909399; font-style: italic; font-size: 12px; margin-top: 8px;');
   
   console.groupEnd();
