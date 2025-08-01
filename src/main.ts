@@ -69,6 +69,8 @@ const setupAll = async () => {
   app.mount('#app')
 }
 
-setupAll()
+import { showVersionInfo } from './utils/version';
 
-Logger.prettyPrimary(`欢迎使用`, import.meta.env.VITE_APP_TITLE)
+showVersionInfo();
+
+setupAll()

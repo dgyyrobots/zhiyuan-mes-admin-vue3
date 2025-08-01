@@ -191,7 +191,6 @@ service.interceptors.response.use(
     }
   },
   (error: AxiosError) => {
-    console.log('err' + error) // for debug
     let { message } = error
     const { t } = useI18n()
     if (message === 'Network Error') {
