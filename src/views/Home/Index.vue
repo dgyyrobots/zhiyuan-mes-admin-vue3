@@ -17,13 +17,21 @@
         v-for="(item, index) in cardList"
         :key="index" 
         class="card-item"
+        :class="{ 'loading': loadingStates[item.id] }"
+        @click="(event) => { addClickAnimation(event); openUrl(item); }"
       >
-        <div class="card-content" @click="openUrl(item)">
+        <div class="card-content">
           <div class="card-icon">
             <el-avatar
              :src="item.systemImg"
              :size="70"
              />
+            <!-- Loading 遮罩层 -->
+            <div v-if="loadingStates[item.id]" class="loading-overlay">
+              <el-icon class="loading-spinner">
+                <Loading />
+              </el-icon>
+            </div>
           </div>
           <div class="card-name">{{ item.systemName }}</div>
         </div>
@@ -74,9 +82,8 @@
 import { ref, reactive, onMounted } from 'vue';
 import { SsoSystemApi } from '@/api/erp/ssosystem';
 import { SsoUsersApi } from '@/api/erp/ssousers';
-
 import * as HomeApi from '@/api/system/homeSet';
-import { View, Hide } from '@element-plus/icons-vue';
+import { View, Hide, Loading } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 // 定义卡片项的接口
 interface CardItem {
@@ -92,110 +99,160 @@ interface CardItem {
 // 卡片数据列表
 const cardList = ref<CardItem[]>([]);
 
+// 添加loading状态管理
+const loadingStates = ref<Record<string, boolean>>({});
+
+// 设置loading状态
+const setCardLoading = (cardId: string, loading: boolean) => {
+  loadingStates.value[cardId] = loading;
+};
+
+// 添加点击动画效果
+ const addClickAnimation = (event: MouseEvent) => {
+    const target = event.currentTarget as HTMLElement;
+    const cardContent = target.querySelector('.card-content') as HTMLElement;
+    const cardIcon = target.querySelector('.card-icon') as HTMLElement;
+    
+    // 检查元素是否存在
+    if (!cardContent || !cardIcon) {
+      console.warn('Card elements not found');
+      return;
+    }
+   
+   // 添加点击动画类
+   cardContent.style.transform = 'scale(0.95)';
+   cardIcon.style.transform = 'scale(1.15)';
+  
+  // 创建涟漪效果
+  const ripple = document.createElement('div');
+  ripple.style.cssText = `
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(64, 158, 255, 0.3);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+  `;
+  
+  const rect = cardIcon.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = '50%';
+  ripple.style.top = '50%';
+  ripple.style.marginLeft = -size / 2 + 'px';
+  ripple.style.marginTop = -size / 2 + 'px';
+  
+  cardIcon.appendChild(ripple);
+  
+  // 恢复动画
+  setTimeout(() => {
+    cardContent.style.transform = '';
+    cardIcon.style.transform = '';
+  }, 150);
+  
+  // 清理涟漪元素
+  setTimeout(() => {
+    if (ripple.parentNode) {
+      ripple.parentNode.removeChild(ripple);
+    }
+  }, 600);
+};
+
 // 打开URL到新标签页
 const openUrl = async (item: CardItem) => {
-
-  const url = networkType.value==='内网'? item.internalLink : item.externalLink  // externalLink 是外网, internalLink 是内网
+  const url = networkType.value==='内网'? item.internalLink : item.externalLink;
   if(!url) {
     ElMessage.error(`未获取跳转路径,请切换成${networkType.value==='内网'?'外网':'内网'}模式!`);
     return;
   }
+  
+  // 设置loading状态
+  setCardLoading(item.id, true);
+  
   try {
     switch (item.systemName) {
       case '澳美MES':
-        // 调用自动登录接口
         const accessToken = await SsoSystemApi.getSsoSystemToken({
           inside: networkType.value==='内网'?true:false,
           id:item.id
         });
         if (accessToken) {
-          // 参照main.html中的URL格式，使用token参数
           window.open(`${url}login?tenant-id=${158}&token=${accessToken}`, '_blank');
         } else {
           ElMessage.error(accessToken?.msg || '自动登录失败');
         }
         break;
 
-        case '智源MES':
-          // 调用自动登录接口
-          const zyres = await SsoSystemApi.getSsoSystemToken({
-            inside: networkType.value==='内网'?true:false,
-            id:item.id
-          });
-          const zy_accessToken = zyres
-          if (zy_accessToken) {
-            window.open(`${url}outside/oauth_login/action:login/access_token:` + zy_accessToken, "_blank");
-          } else {
+      case '智源MES':
+        const zyres = await SsoSystemApi.getSsoSystemToken({
+          inside: networkType.value==='内网'?true:false,
+          id:item.id
+        });
+        if (zyres) {
+          window.open(`${url}outside/oauth_login/action:login/access_token:` + zyres, "_blank");
+        } else {
           ElMessage.error(zyres?.msg || '自动登录失败');
         }
         break;
 
-        case '东合MES':
-        // 调用自动登录接口
-         const dhres = await SsoSystemApi.getSsoSystemToken({
-            inside: networkType.value==='内网'?true:false,
-            id:item.id
-          });
-         const dh_accessToken = dhres
-          if (dh_accessToken) {
-            window.open(`${url}outside/oauth_login/action:login/access_token:` + dh_accessToken, "_blank");
-          } else {
+      case '东合MES':
+        const dhres = await SsoSystemApi.getSsoSystemToken({
+          inside: networkType.value==='内网'?true:false,
+          id:item.id
+        });
+        if (dhres) {
+          window.open(`${url}outside/oauth_login/action:login/access_token:` + dhres, "_blank");
+        } else {
           ElMessage.error(dhres?.msg || '自动登录失败');
         }
         break;
 
-        case '智源HR':
-        // 调用自动登录接口
-         const hrres = await SsoSystemApi.getSsoSystemToken({
-            inside: networkType.value==='内网'?true:false,
-            id:item.id
-          });
-          const hr_accessToken = hrres
-          if (hr_accessToken) {
-            // 使用window.open在新标签页中打开
-            window.open(`${window.location.origin}/hrAutoLogin?encJsonData=${encodeURIComponent(hr_accessToken)}`, '_blank');
-
-            // window.open(`http://172.16.12.101:9000/ammes/HRAutoLogin.html?encJsonData=${encodeURIComponent(hr_accessToken)}`, '_blank');
-          } else {
+      case '智源HR':
+        const hrres = await SsoSystemApi.getSsoSystemToken({
+          inside: networkType.value==='内网'?true:false,
+          id:item.id
+        });
+        if (hrres) {
+          window.open(`${window.location.origin}/hrAutoLogin?encJsonData=${encodeURIComponent(hrres)}`, '_blank');
+        } else {
           ElMessage.error(hrres?.msg || '自动登录失败');
         }
         break;
 
-        case '集团OA系统':
-        // 调用自动登录接口
-         const oares = await SsoSystemApi.getSsoSystemToken({
-            inside: networkType.value==='内网'?true:false,
-            id:item.id
-          });
-          const oa_accessToken = oares
-          if (oa_accessToken) {
-            // 使用window.open在新标签页中打开
-            window.open(`${window.location.origin}/amAutoLogin?logininfo=${oa_accessToken}`, '_blank');
-          } else {
+      case '集团OA系统':
+        const oares = await SsoSystemApi.getSsoSystemToken({
+          inside: networkType.value==='内网'?true:false,
+          id:item.id
+        });
+        if (oares) {
+          window.open(`${window.location.origin}/amAutoLogin?logininfo=${oares}`, '_blank');
+        } else {
           ElMessage.error(oares?.msg || '自动登录失败');
         }
         break;
 
-        case '集团企业邮箱':
-        // 调用自动登录接口
-         const emailres = await SsoSystemApi.getSsoSystemToken({
-            inside: networkType.value==='内网'?true:false,
-            id:item.id
-          });
-          if (emailres) {
-            window.open(`https://entryhz.qiye.163.com/login/ssoLogin?sso_token=${emailres}&lang=0`, '_blank');
-          } else {
+      case '集团企业邮箱':
+        const emailres = await SsoSystemApi.getSsoSystemToken({
+          inside: networkType.value==='内网'?true:false,
+          id:item.id
+        });
+        if (emailres) {
+          window.open(`https://entryhz.qiye.163.com/login/ssoLogin?sso_token=${emailres}&lang=0`, '_blank');
+        } else {
           ElMessage.error(emailres?.msg || '自动登录失败');
         }
         break;
+        
       default:
-        // 其他系统的处理逻辑
         window.open(item.internalLink, '_blank');
         break;
     }
   } catch (error) {
     console.error('自动登录出错:', error);
     ElMessage.error('自动登录失败');
+  } finally {
+    // 无论成功失败都要清除loading状态
+    setCardLoading(item.id, false);
   }
 };
 
@@ -349,8 +406,25 @@ onMounted(async () => {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:active {
+      transform: scale(0.95);
+    }
+    
+    &:hover {
+      .card-icon {
+        transform: scale(1.1);
+        background: rgba(64, 158, 255, 0.2);
+        box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+      }
+      
+      .card-name {
+        color: #409EFF;
+        transform: translateY(-2px);
+      }
+    }
   }
-  
   .card-icon {
     margin-bottom: 20px;
     color: #409EFF;
@@ -361,12 +435,47 @@ onMounted(async () => {
     height: 70px;
     border-radius: 50%;
     background: rgba(64, 158, 255, 0.1);
-  }
-  
-  .card-name {
-    font-size: 16px;
-    font-weight: 500;
-    color: #333;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 0.6s ease;
+    }
+    
+    &:active::before {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      
+      .loading-spinner {
+        font-size: 24px;
+        color: #409EFF;
+        animation: spin 1s linear infinite;
+      }
+    }
   }
   
   .card-setting {
@@ -391,6 +500,16 @@ onMounted(async () => {
   }
 }
 
+// Loading旋转动画
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
@@ -407,6 +526,50 @@ onMounted(async () => {
 }
 .tips {
   font-size: 14px;
-  color: #ee4907;
+  color: #f56c6c;
+}
+
+// 涟漪动画关键帧
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+// 弹性点击动画
+@keyframes bounce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// 图标脉冲动画
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(64, 158, 255, 0.4);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(64, 158, 255, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(64, 158, 255, 0);
+  }
 }
 </style>
