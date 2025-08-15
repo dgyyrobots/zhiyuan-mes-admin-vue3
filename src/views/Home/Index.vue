@@ -49,10 +49,26 @@
     >
       <el-form :model="settingForm" label-width="80px">
         <el-form-item label="账号">
-          <el-input v-model="settingForm.userName" placeholder="请输入账号" />
+          <el-input v-model="settingForm.userName" placeholder="请输入账号"  :disabled="currentItem.systemName==='集团ERP系统'"/>
           <span class="tips" v-if="currentItem.systemName==='集团企业邮箱'">提示: 请输入正确的邮箱前缀；如 test@amvig.com.cn，需输入test</span>
         </el-form-item>
-        <el-form-item label="密码">
+        <el-form-item v-if="currentItem?.systemName === '集团ERP系统'" label="租户">
+          <el-select
+            v-model="settingForm.tenantName"
+            placeholder="请选择租户名称"
+            clearable
+            filterable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="item in tenantOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.tenantName"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="密码" v-show="currentItem?.systemName !== '集团ERP系统'">
           <el-input 
             v-model="settingForm.password" 
             :type="passwordVisible ? 'text' : 'password'" 
@@ -85,20 +101,27 @@ import { SsoUsersApi } from '@/api/erp/ssousers';
 import * as HomeApi from '@/api/system/homeSet';
 import { View, Hide, Loading } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
+import * as LoginApi from '@/api/login';
+import { useUserStore } from '@/store/modules/user';
+import { oneOf } from 'vue-types';
 // 定义卡片项的接口
 interface CardItem {
   userName: string;
   password: string;
-  id:string,
-  systemName:string,
-  systemImg:string,
-  internalLink:string,
-  externalLink:string,
+  tenantName?: string; // 新增租户名称字段
+  id: string;
+  systemName: string;
+  systemImg: string;
+  internalLink: string;
+  externalLink: string;
 }
 
 // 卡片数据列表
 const cardList = ref<CardItem[]>([]);
-
+const tenantOptions = ref([]);
+// 获取用户store
+const userStore = useUserStore();
+const user = computed(() => userStore.user);
 // 添加loading状态管理
 const loadingStates = ref<Record<string, boolean>>({});
 
@@ -106,7 +129,16 @@ const loadingStates = ref<Record<string, boolean>>({});
 const setCardLoading = (cardId: string, loading: boolean) => {
   loadingStates.value[cardId] = loading;
 };
-
+// 获取租户列表
+const getTenantNameOptions = async () => {
+  try {
+    const res = await LoginApi.getTenantNameList();
+    tenantOptions.value = res;
+    console.log( tenantOptions.value ,'  tenantOptions.value = res;')
+  } catch (error) {
+    console.error('获取租户列表失败:', error);
+  }
+};
 // 添加点击动画效果
  const addClickAnimation = (event: MouseEvent) => {
     const target = event.currentTarget as HTMLElement;
@@ -242,6 +274,21 @@ const openUrl = async (item: CardItem) => {
           ElMessage.error(emailres?.msg || '自动登录失败');
         }
         break;
+
+
+        case '集团ERP系统':
+        const ERP_res = await SsoSystemApi.getSsoSystemToken({
+          inside: networkType.value==='内网'?true:false,
+          id:item.id
+        });
+        console.log(typeof ERP_res==='string','typeof ERP_res')
+        if(ERP_res && typeof ERP_res==='string'){
+          const erpObj = JSON.parse(ERP_res);
+          const erp_url = erpObj.payload.std_data.parameter.url
+          console.log(erp_url,'erp_url')
+          window.open(`${erp_url}`, '_blank');
+        }
+        break;
         
       default:
         window.open(item.internalLink, '_blank');
@@ -249,6 +296,7 @@ const openUrl = async (item: CardItem) => {
     }
   } catch (error) {
     console.error('自动登录出错:', error);
+    setCardLoading(item.id, false);
     ElMessage.error('自动登录失败');
   } finally {
     // 无论成功失败都要清除loading状态
@@ -263,16 +311,19 @@ const passwordVisible = ref(false); // 控制密码显示/隐藏
 const settingForm = reactive({
   userName: '',
   password: '',
+  tenantName: '',
   id:""
 });
 
 // 打开设置弹框
-const openSettingDialog = (item: CardItem) => {
-
+const openSettingDialog = async (item: CardItem) => {
+  if (item.systemName === '集团ERP系统') {
+    await getTenantNameOptions();
+  }
+  
   currentItem.value = item;
-  console.log(currentItem.value,'currentItem.value')
   // 这里可以根据实际情况加载已保存的账号密码
-  settingForm.userName = item.userName;
+  settingForm.userName =item.systemName === '集团ERP系统'?user.value.username : item.userName;
   settingForm.password = item.password;
   settingForm.id = item.id ;
   dialogVisible.value = true;
@@ -284,7 +335,7 @@ const saveSettings = async () => {
     try {
       const params = {
         userName: settingForm.userName,
-        password: settingForm.password,
+        password: currentItem.value.systemName === '集团ERP系统'?settingForm.tenantName:settingForm.password,
         systemId: settingForm.id
       };
       
