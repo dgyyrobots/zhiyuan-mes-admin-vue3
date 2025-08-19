@@ -115,7 +115,7 @@ const updateChart = () => {
           color: '#fff',
           fontSize: 12,
           formatter: '{value}',
-          margin: 15 
+          margin: 18
         }
       },
       {
