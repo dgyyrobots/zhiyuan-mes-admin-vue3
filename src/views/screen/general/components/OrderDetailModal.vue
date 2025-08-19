@@ -3,46 +3,46 @@
       <div class="modal-backdrop" @click="handleClose"></div>
       <div class="modal-content">
         <div class="modal-header">
-          <h3 class="modal-title">工单详情</h3>
+          <h3 class="modal-title">{{ t('dashboard.generalManager.orderDetail.title') }}</h3>
           <button class="close-btn" @click="handleClose">×</button>
         </div>
         <div class="modal-body" v-loading="loading">
           <div class="detail-grid">
             <!-- 第一行 -->
             <div class="detail-item">
-              <span class="item-label">工&nbsp;&nbsp;单&nbsp;&nbsp;号:</span>
+              <span class="item-label">{{ t('dashboard.generalManager.orderDetail.orderNo') }}:</span>
               <span class="item-value">{{ detailData.orderNo || orderDetail.orderNo }}</span>
             </div>
             <div class="detail-item">
-              <span class="item-label">客&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span>
+              <span class="item-label">{{ t('dashboard.generalManager.orderDetail.customer') }}:</span>
               <span class="item-value">{{ detailData.customer || orderDetail.customer }}</span>
             </div>
             <div class="detail-item">
-              <span class="item-label">客户编号:</span>
+              <span class="item-label">{{ t('dashboard.generalManager.orderDetail.customerCode') }}:</span>
               <span class="item-value">{{ detailData.customerCode || orderDetail.customerCode }}</span>
             </div>
             
             <!-- 第二行 -->
             <div class="detail-item">
-              <span class="item-label">任务数量:</span>
+              <span class="item-label">{{ t('dashboard.generalManager.orderDetail.taskQuantity') }}:</span>
               <span class="item-value">{{ detailData.quantity || orderDetail.quantity }}</span>
             </div>
             <div class="detail-item">
-              <span class="item-label">交货日期:</span>
+              <span class="item-label">{{ t('dashboard.generalManager.orderDetail.deliveryDate') }}:</span>
               <span class="item-value">{{ detailData.deliveryDate || orderDetail.deliveryDate }}</span>
             </div>
             <div class="detail-item">
-              <span class="item-label">已入库合格量:</span>
+              <span class="item-label">{{ t('dashboard.generalManager.orderDetail.qualifiedQuantity') }}:</span>
               <span class="item-value">{{ detailData.qualifiedQuantity || orderDetail.qualifiedQuantity }}</span>
             </div>
             <!-- 第三行 -->
 
             <div class="detail-item">
-              <span class="item-label">已发料套数:</span>
+              <span class="item-label">{{ t('dashboard.generalManager.orderDetail.issuedSets') }}:</span>
               <span class="item-value">{{ detailData.issuedSets || orderDetail.issuedSets }}</span>
             </div>
             <div class="detail-item">
-              <span class="item-label">完成率:</span>
+              <span class="item-label">{{ t('dashboard.generalManager.orderDetail.completionRate') }}:</span>
               <span class="item-value">{{ detailData.completionRate || orderDetail.completionRate }}%</span>
             </div>
           </div>
@@ -53,10 +53,10 @@
             <table class="process-table">
                 <thead>
                 <tr>
-                    <th>工序</th>
-                    <th>计划数量</th>
-                    <th>完工数量</th>
-                    <th>完成率</th>
+                    <th>{{ t('dashboard.generalManager.orderDetail.processTable.process') }}</th>
+                    <th>{{ t('dashboard.generalManager.orderDetail.processTable.planQuantity') }}</th>
+                    <th>{{ t('dashboard.generalManager.orderDetail.processTable.completedQuantity') }}</th>
+                    <th>{{ t('dashboard.generalManager.orderDetail.processTable.completionRate') }}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -70,7 +70,7 @@
             </table>
             </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" @click="handleClose">关闭</button>
+          <button class="btn btn-primary" @click="handleClose">{{ t('dashboard.generalManager.orderDetail.close') }}</button>
         </div>
       </div>
     </div>
@@ -78,8 +78,11 @@
   
   <script setup>
   import { ref, watch } from 'vue'
+  import { useI18n } from 'vue-i18n'
   // 引入API
   import { getEmergencyOrderTrackingDetail } from '@/api/screen/general/index'
+  
+  const { t } = useI18n()
   
   const props = defineProps({
     visible: {
@@ -297,24 +300,27 @@
            
           .detail-item {
           display: flex;
-          flex-direction: row; // 修改为行内显示
-          align-items: center; // 垂直居中对齐
+          flex-direction: row;
+          align-items: center;
           
           .item-label {
             color: #8BB4F7;
             font-size: 16px;
-            margin-right: 8px; // 添加右侧间距
-            white-space: nowrap; // 防止标签换行
-            width: 110px;
+            margin-right: 12px;
+            white-space: nowrap;
+            min-width: 100px;
+            text-align: justify;
+            text-align-last: justify;
+            display: inline-block;
           }
           
           .item-value {
             color: #E6F7FF;
             font-size: 16px;
             font-weight: 500;
-            flex: 1; // 让值占据剩余空间
-            overflow: hidden; // 防止溢出
-            text-overflow: ellipsis; // 文本溢出时显示省略号
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
         }
@@ -322,7 +328,7 @@
             /* 添加工序表格样式 */
         .process-table-container {
         margin-top: 25px;
-        padding: 0 20px; // 添加左右内边距，与上方内容对齐
+        padding: 0 20px;
                 
         .process-table {
           width: 100%;

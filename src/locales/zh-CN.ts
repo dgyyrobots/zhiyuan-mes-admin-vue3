@@ -452,5 +452,59 @@ export default {
     btn_zoom_out: '缩小',
     preview: '预览'
   },
+  dashboard: {
+    generalManager: {
+      title: '总经理看板',
+      brandCompletion: '年品牌完成率',
+      productionTargets: '目标完成情况',
+      monthlyProduction: '月度生产统计',
+      monthlySales: '月度销售统计',
+      emergencyOrders: '紧急工单跟踪',
+      orderDetail: {
+        title: '工单详情',
+        orderNo: '工单号',
+        customer: '客户',
+        customerCode: '客户编号',
+        taskQuantity: '任务数量',
+        deliveryDate: '交货日期',
+        qualifiedQuantity: '已入库合格量',
+        issuedSets: '已发料套数',
+        completionRate: '完成率',
+        processTable: {
+          process: '工序',
+          planQuantity: '计划数量',
+          completedQuantity: '完工数量',
+          completionRate: '完成率'
+        },
+        close: '关闭'
+      },
+      // 品牌完成表格
+      brandName: '品牌名称',
+      target: '目标',
+      supportingBoxes: '配套烟箱',
+      // 生产目标
+      yearTarget: '年度目标',
+      monthTarget: '月度目标',
+      yearQualityTarget: '年度质量目标',
+      yearCompleted: '年度完成数量',
+      monthCompleted: '月度完成数量',
+      actualQualityRate: '实际合格率',
+      yearCompletionRate: '年度完成率',
+      monthCompletionRate: '月度完成率',
+      // 图表相关
+      targetValue: '目标',
+      actualValue: '实际',
+      completionRatio: '完成比例',
+      month: '月',
+      quantity: '数量 (万箱)',
+      ratio: '比例',
+      // 通用状态
+      noData: '暂无数据',
+      loading: '加载中',
+      refresh: '刷新',
+      fullscreen: '全屏',
+      exitFullscreen: '退出全屏'
+    }
+  },
   'OAuth 2.0': 'OAuth 2.0' // 避免菜单名是 OAuth 2.0 时，一直 warn 报错
 }

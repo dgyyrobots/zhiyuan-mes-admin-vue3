@@ -1,14 +1,15 @@
 <template>
   <div class="emergency-order-tracker">
-    <h3 class="tracker-title">紧急工单跟踪</h3>
+    <h3 class="tracker-title">{{ $t('dashboard.generalManager.emergencyOrders') }}</h3>
     
     <!-- 将表格替换为卡片网格 -->
     <div class="cards-container">
       <!-- 使用卡片展示每个工单 -->
       <div
-v-for="(item, index) in orderData" :key="index"
-           @click="showOrderDetail(item)"
-           class="order-card">
+        v-for="(item, index) in orderData" 
+        :key="index"
+        @click="showOrderDetail(item)"
+        class="order-card">
         <div class="card-header">
           <span class="order-link">{{ item.orderNo }}</span>
           <span :class="['completion-badge', {'up': item.completionRate >= 90, 'down': item.completionRate < 90}]">
@@ -16,13 +17,13 @@ v-for="(item, index) in orderData" :key="index"
           </span>
         </div>
         <div class="card-body">
-          <span class="info-label">客户:</span>
+          <span class="info-label">{{ $t('dashboard.generalManager.orderDetail.customer') }}:</span>
           <span class="info-value" :title="item.customer">{{ item.customer }}</span>
           
-          <span class="info-label">交货日期:</span>
+          <span class="info-label">{{ $t('dashboard.generalManager.orderDetail.deliveryDate') }}:</span>
           <span class="info-value">{{ item.deliveryDate }}</span>
           
-          <span class="info-label">任务数量:</span>
+          <span class="info-label">{{ $t('dashboard.generalManager.orderDetail.taskQuantity') }}:</span>
           <span class="info-value">{{ item.quantity }}</span>
         </div>
         <div class="card-footer">
@@ -34,7 +35,7 @@ v-for="(item, index) in orderData" :key="index"
       
       <!-- 无数据时显示提示 -->
       <div v-if="orderData.length === 0" class="empty-state">
-        暂无紧急工单数据
+        {{ $t('dashboard.generalManager.noData') }}
       </div>
     </div>
     
@@ -47,12 +48,15 @@ v-for="(item, index) in orderData" :key="index"
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted, onUnmounted } from 'vue'
 import jumpdetailIcon from '@/assets/screen/icon_svg/jumpd.svg';
 // 引入详情弹框组件
 import OrderDetailModal from './OrderDetailModal.vue'
 // 引入API
 import { getEmergencyOrderTrackingList } from '@/api/screen/general/index'
+
+const { t } = useI18n()
 
 // 工单数据
 const orderData = ref([])
@@ -68,39 +72,9 @@ const REFRESH_INTERVAL = 60 * 60 * 1000
 
 // 显示工单详情
 const showOrderDetail = (order) => {
-  // 扩展工单数据，添加更多详情信息
-  selectedOrder.value = {
-    ...order,
-    // 添加额外的详情信息
-    manager: getRandomManager(),
-    urgency: getRandomUrgency(),
-    remark: getRandomRemark()
-  }
+  // 直接使用接口返回的数据，不添加额外的模拟数据
+  selectedOrder.value = { ...order }
   detailModalVisible.value = true
-}
-
-// 随机生成负责人（模拟数据）
-const getRandomManager = () => {
-  const managers = ['张经理', '李工程师', '王主管', '赵组长', '刘技术员']
-  return managers[Math.floor(Math.random() * managers.length)]
-}
-
-// 随机生成紧急程度（模拟数据）
-const getRandomUrgency = () => {
-  return Math.floor(Math.random() * 3) + 1 // 1-3
-}
-
-// 随机生成备注（模拟数据）
-const getRandomRemark = () => {
-  const remarks = [
-    '客户要求尽快交付',
-    '需要特殊包装',
-    '已与客户确认交期',
-    '需要提前准备原材料',
-    '客户可能会提前验收',
-    ''
-  ]
-  return remarks[Math.floor(Math.random() * remarks.length)]
 }
 
 // 时间戳转换为日期字符串
@@ -129,7 +103,11 @@ const transformApiData = (apiData) => {
       quantity: item.任务数量 || 0,
       completionRate: parseFloat(item.完成率 || 0),
       qualifiedQuantity: item.已入库合格量 || 0,
-      issuedSets: item.已发料套数 || 0
+      issuedSets: item.已发料套数 || 0,
+      // 如果接口返回了这些字段，直接使用；否则为空
+      manager: item.负责人 || '',
+      urgency: item.紧急程度 || '',
+      remark: item.备注 || ''
     }
   })
 }
@@ -146,13 +124,11 @@ const fetchData = async () => {
       orderData.value = transformApiData(res)
     } else {
       console.warn('API返回数据格式异常:', res)
-      // 如果API调用失败，使用模拟数据作为备用
       orderData.value = []
     }
   } catch (error) {
     console.error('获取紧急工单数据失败:', error)
-    // 错误时使用模拟数据
-      orderData.value = []
+    orderData.value = []
   }
 }
 
@@ -330,7 +306,7 @@ onUnmounted(() => {
       padding: 12px 16px;
       flex: 1;
       display: grid;
-      grid-template-columns: 70px 1fr;
+      grid-template-columns: minmax(80px, auto) 1fr; // 修改为自适应宽度
       gap: 8px 12px;
       align-items: center;
       
@@ -339,6 +315,8 @@ onUnmounted(() => {
         font-size: 14px;
         text-align: justify;
         text-align-last: justify;
+        white-space: nowrap; // 防止换行
+        min-width: 80px; // 设置最小宽度
       }
       
       .info-value {

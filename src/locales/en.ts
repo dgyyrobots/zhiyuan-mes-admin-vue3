@@ -456,5 +456,59 @@ export default {
     btn_zoom_in: 'Zoom in',
     btn_zoom_out: 'Zoom out',
     preview: 'Preivew'
-  }
+  },
+  dashboard: {
+    generalManager: {
+      title: 'General Manager Dashboard',
+      brandCompletion: 'Annual Brand Completion Rate',
+      productionTargets: 'Target Completion Status',
+      monthlyProduction: 'Monthly Production Statistics',
+      monthlySales: 'Monthly Sales Statistics',
+      emergencyOrders: 'Emergency Order Tracking',
+      orderDetail: {
+        title: 'Order Details',
+        orderNo: 'Order No.',
+        customer: 'Customer',
+        customerCode: 'Customer Code',
+        taskQuantity: 'Task Quantity',
+        deliveryDate: 'Delivery Date',
+        qualifiedQuantity: 'Qualified Quantity in Stock',
+        issuedSets: 'Issued Sets',
+        completionRate: 'Completion Rate',
+        processTable: {
+          process: 'Process',
+          planQuantity: 'Plan Quantity',
+          completedQuantity: 'Completed Quantity',
+          completionRate: 'Completion Rate'
+        },
+        close: 'Close'
+      },
+      // Brand completion table
+      brandName: 'Brand Name',
+      target: 'Target',
+      supportingBoxes: 'Supporting Boxes',
+      // Production targets
+      yearTarget: 'Annual Target',
+      monthTarget: 'Monthly Target',
+      yearQualityTarget: 'Annual Quality Target',
+      yearCompleted: 'Annual Completed',
+      monthCompleted: 'Monthly Completed',
+      actualQualityRate: 'Actual Quality Rate',
+      yearCompletionRate: 'Annual Completion Rate',
+      monthCompletionRate: 'Monthly Completion Rate',
+      // Chart related
+      targetValue: 'Target',
+      actualValue: 'Actual',
+      completionRatio: 'Completion Ratio',
+      month: 'Month',
+      quantity: 'Quantity (10K Boxes)',
+      ratio: 'Ratio',
+      // Common status
+      noData: 'No Data',
+      loading: 'Loading',
+      refresh: 'Refresh',
+      fullscreen: 'Fullscreen',
+      exitFullscreen: 'Exit Fullscreen'
+    }
+  },
 }

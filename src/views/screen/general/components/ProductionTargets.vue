@@ -1,10 +1,10 @@
 <template>
     <div class="production-targets">
-      <h3 class="title">目标完成情况</h3>
+      <h3 class="title">{{ t('dashboard.generalManager.productionTargets') }}</h3>
       <div class="targets-container">
         <div class="targets-row">
           <div class="target-item">
-            <div class="target-label">年度目标</div>
+            <div class="target-label">{{ t('dashboard.generalManager.yearTarget') }}</div>
             <div class="target-value">
                 <CountTo
                 :startVal="0"
@@ -14,7 +14,7 @@
            </div>
           </div>
           <div class="target-item">
-            <div class="target-label">月度目标</div>
+            <div class="target-label">{{ t('dashboard.generalManager.monthTarget') }}</div>
             <div class="target-value">
                 <CountTo
                 :startVal="0"
@@ -24,7 +24,7 @@
             </div>
           </div>
           <div class="target-item">
-            <div class="target-label">年度质量目标</div>
+            <div class="target-label">{{ t('dashboard.generalManager.yearQualityTarget') }}</div>
             <div class="target-value">
               <CountTo
                 :startVal="0"
@@ -37,7 +37,7 @@
         </div>
         <div class="targets-row">
           <div class="target-item">
-            <div class="target-label">年度完成数量</div>
+            <div class="target-label">{{ t('dashboard.generalManager.yearCompleted') }}</div>
             <div class="target-value">
                 <CountTo
                 :startVal="0"
@@ -47,7 +47,7 @@
             </div>
           </div>
           <div class="target-item">
-            <div class="target-label">月度完成数量</div>
+            <div class="target-label">{{ t('dashboard.generalManager.monthCompleted') }}</div>
             <div class="target-value">
                 <CountTo
                 :startVal="0"
@@ -57,7 +57,7 @@
              </div>
           </div>
           <div class="target-item">
-            <div class="target-label">实际合格率</div>
+            <div class="target-label">{{ t('dashboard.generalManager.actualQualityRate') }}</div>
             <div class="target-value">
               <CountTo
                 :startVal="0"
@@ -70,7 +70,7 @@
         </div>
         <div class="targets-row">
           <div class="target-item">
-            <div class="target-label">年度完成率</div>
+            <div class="target-label">{{ t('dashboard.generalManager.yearCompletionRate') }}</div>
             <div class="target-value" :class="getCompletionClass(targetData.yearCompletionRate + '%')">
               <CountTo
                 :startVal="0"
@@ -81,7 +81,7 @@
             </div>
           </div>
           <div class="target-item">
-            <div class="target-label">月度完成率</div>
+            <div class="target-label">{{ t('dashboard.generalManager.monthCompletionRate') }}</div>
             <div class="target-value" :class="getCompletionClass(targetData.monthCompletionRate + '%')">
               <CountTo
                 :startVal="0"
@@ -102,9 +102,12 @@
   
   <script setup>
   import { ref, onMounted, onUnmounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import { CountTo } from 'vue3-count-to'
   // 引入API
   import { getMainData } from '@/api/screen/general/index'
+  
+  const { t } = useI18n()
   
   // 目标数据
   const targetData = ref({
@@ -333,7 +336,7 @@
           }
           
           .target-label {
-            font-size: 12px; // 减小标签字体
+            font-size: 13px; // 减小标签字体
             color: rgba(255, 255, 255, 0.7);
             margin-bottom: 6px; // 减小间距
             text-align: center;

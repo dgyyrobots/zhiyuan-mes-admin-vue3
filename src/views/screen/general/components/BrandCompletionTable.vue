@@ -1,14 +1,32 @@
 <template>
   <div class="brand-completion-table">
-    <h3 class="table-title">年品牌完成率</h3>
+    <h3 class="table-title">{{ t('dashboard.generalManager.brandCompletion') }}</h3>
     <div class="table-container">
       <table v-if="tableData.length > 0">
         <thead>
           <tr>
-            <th class="brand-name">品牌名称</th>
-            <th>目标</th>
-            <th>配套烟箱</th>
-            <th>完成率</th>
+            <th class="brand-name">{{ t('dashboard.generalManager.brandName') }}</th>
+            <th>{{ t('dashboard.generalManager.target') }}</th>
+            <th>
+              <el-tooltip
+              class="box-item"
+              effect="dark"
+              :content="t('dashboard.generalManager.supportingBoxes')"
+              placement="top-start"
+            >
+              {{ t('dashboard.generalManager.supportingBoxes') }}
+            </el-tooltip>
+         </th>
+          <th>
+              <el-tooltip
+              class="box-item"
+              effect="dark"
+              :content="t('dashboard.generalManager.completionRate')"
+              placement="top-start"
+            >
+              {{ t('dashboard.generalManager.completionRate') }}
+            </el-tooltip>
+         </th>
           </tr>
         </thead>
         <tbody>
@@ -25,7 +43,7 @@
         </tbody>
       </table>
       <div v-else class="no-data">
-        暂无年品牌完成率数据
+        {{ t('dashboard.generalManager.noData') }}
       </div>
     </div>
   </div>
@@ -33,7 +51,10 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getBrandList } from '@/api/screen/general/index'
+
+const { t } = useI18n()
 
 // 表格数据
 const tableData = ref([])

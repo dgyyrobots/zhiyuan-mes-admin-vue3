@@ -1,10 +1,10 @@
 <template>
   <div class="monthly-sales-chart">
-    <h3 class="chart-title">销售完成情况</h3>
+    <h3 class="chart-title">{{ t('dashboard.generalManager.monthlySales') }}</h3>
     <div class="chart-content">
       <div class="chart-container" ref="chartRef"></div>
       <div v-if="!chartData.xAxis.length" class="no-data">
-        暂无数据
+        {{ t('dashboard.generalManager.noData') }}
       </div>
     </div>
   </div>
@@ -13,12 +13,13 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import * as echarts from 'echarts'
-
+import { useI18n } from 'vue-i18n'
 
 import { getSalesOrderTracking } from '@/api/screen/general/index'
 // 图表引用
 const chartRef = ref(null)
 let chart = null
+const { t } = useI18n()
 
 // 图表数据
 const chartData = ref({
@@ -58,9 +59,9 @@ const updateChart = () => {
         let result = params[0].name + '<br/>';
         params.forEach(item => {
           let colorSpan = `<span style="display:inline-block;margin-right:5px;border-radius:50%;width:10px;height:10px;background-color:${item.color};"></span>`;
-          let value = item.seriesName === '完成比例' ? 
+          let value = item.seriesName === t('dashboard.generalManager.completionRatio') ? 
                       item.value + '%' : 
-                      item.value + ' 万箱';
+                      item.value + ' ' + t('dashboard.generalManager.quantity').replace(' (万箱)', '');
           result += colorSpan + item.seriesName + ': ' + value + '<br/>';
         });
         return result;
@@ -70,7 +71,7 @@ const updateChart = () => {
       }
     },
     legend: {
-      data: ['目标', '实际', '完成比例'],
+      data: [t('dashboard.generalManager.target'), t('dashboard.generalManager.actualValue'), t('dashboard.generalManager.completionRatio')],
       textStyle: {
         color: '#fff'
       },
@@ -101,7 +102,7 @@ const updateChart = () => {
     yAxis: [
       {
         type: 'value',
-        name: '数量 (万箱)',
+        name: t('dashboard.generalManager.quantity'),
         splitLine: {
           show: true,
           lineStyle: {
@@ -118,7 +119,7 @@ const updateChart = () => {
       },
       {
         type: 'value',
-        name: '比例',
+        name: t('dashboard.generalManager.ratio'),
         min: 0,
         // 修改最大值为动态计算，确保能显示所有数据
         max: function(value) {
@@ -137,7 +138,7 @@ const updateChart = () => {
     ],
     series: [
         {
-          name: '目标',
+          name: t('dashboard.generalManager.target'),
           type: 'bar',
           data: chartData.value.targetData,
           barWidth: 12,
@@ -162,7 +163,7 @@ const updateChart = () => {
           }
         },
         {
-          name: '实际',
+          name: t('dashboard.generalManager.actualValue'),
           type: 'bar',
           data: chartData.value.actualData,
           barWidth: 12,
@@ -187,7 +188,7 @@ const updateChart = () => {
           }
         },
         {
-          name: '完成比例',
+          name: t('dashboard.generalManager.completionRatio'),
           type: 'line',
           yAxisIndex: 1,
           data: chartData.value.completionRateData,

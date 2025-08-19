@@ -5,7 +5,7 @@
       <div class="logo-container">
         <img src="@/assets/screen/images/logo.png" alt="Logo" class="logo"/>
       </div>
-      <h1 class="title">总经理看板</h1>
+      <h1 class="title">{{ $t('dashboard.generalManager.title') }}</h1>
       <div class="time-container">
         <div class="time">
           <span style="margin-right: 10px;">{{ currentDate }}</span>
@@ -57,10 +57,10 @@ import MonthlySalesChart from './components/MonthlySalesChart.vue'
 import MonthlyProductionChart from './components/MonthlyProductionChart.vue'
 import EmergencyOrderTracker from './components/EmergencyOrderTracker.vue'
 import ProductionTargets from './components/ProductionTargets.vue'
-
+import { useI18n } from 'vue-i18n'
 // 获取容器引用
 const screenContainer = ref()
-
+const { t } = useI18n()
 // 使用 useFullscreen
 const { isFullscreen, toggle } = useFullscreen(screenContainer)
 
