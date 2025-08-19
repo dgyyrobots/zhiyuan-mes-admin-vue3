@@ -487,6 +487,7 @@ export default {
       brandName: 'Brand Name',
       target: 'Target',
       supportingBoxes: 'Supporting Boxes',
+      completionRate: 'Completion Rate',
       // Production targets
       yearTarget: 'Annual Target',
       monthTarget: 'Monthly Target',

@@ -482,6 +482,7 @@ export default {
       brandName: '品牌名称',
       target: '目标',
       supportingBoxes: '配套烟箱',
+      completionRate: '完成率',
       // 生产目标
       yearTarget: '年度目标',
       monthTarget: '月度目标',
