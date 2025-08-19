@@ -16,35 +16,14 @@ v-for="(item, index) in orderData" :key="index"
           </span>
         </div>
         <div class="card-body">
-          <div class="info-item">
-            <span class="info-label">客&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span>
-            <span class="info-value" :title="item.customer">{{ item.customer }}</span>
-          </div>
-          <!-- <div class="info-item">
-            <span class="info-label">客户编号:</span>
-            <span class="info-value">{{ item.customerCode }}</span>
-          </div> -->
-          <!-- 修改这里：将交货日期和工单数量放在同一行 -->
-          <div class="info-row">
-            <div class="info-item">
-              <span class="info-label">交货日期:</span>
-              <span class="info-value" style="padding-left: 10px;">{{ item.deliveryDate }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">任务数量:</span>
-              <span class="info-value">{{ item.quantity }}</span>
-            </div>
-          </div>
-          <!-- <div class="info-row">
-            <div class="info-item">
-              <span class="info-label">合格量:</span>
-              <span class="info-value">{{ item.qualifiedQuantity }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">发料套数:</span>
-              <span class="info-value">{{ item.issuedSets }}</span>
-            </div>
-          </div> -->
+          <span class="info-label">客户:</span>
+          <span class="info-value" :title="item.customer">{{ item.customer }}</span>
+          
+          <span class="info-label">交货日期:</span>
+          <span class="info-value">{{ item.deliveryDate }}</span>
+          
+          <span class="info-label">任务数量:</span>
+          <span class="info-value">{{ item.quantity }}</span>
         </div>
         <div class="card-footer">
           <span class="view-details">
@@ -348,59 +327,28 @@ onUnmounted(() => {
       }
       
       .card-body {
-        padding: 12px 16px;
-        flex: 1;
-        
-        // 添加行样式
-        .info-row {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 8px;
-          
-          .info-item {
-            flex: 1;
-            margin-bottom: 0;
-            
-            &:first-child {
-              margin-right: 10px;
-            }
-            
-            .info-label {
-              width: auto;
-              margin-right: 4px;
-            }
-            
-            .info-value {
-              max-width: 100px; // 限制值的最大宽度
-            }
-          }
-        }
-        
-        .info-item {
-          display: flex;
-          margin-bottom: 8px;
-          
-          &:last-child {
-            margin-bottom: 0;
-          }
-          
-          .info-label {
-            color: #8BB4F7;
-            width: 70px;
-            flex-shrink: 0;
-            font-size: 14px;
-          }
-          
-          .info-value {
-            color: #E6F7FF;
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 14px;
-          }
-        }
+      padding: 12px 16px;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 8px 12px;
+      align-items: center;
+      
+      .info-label {
+        color: #8BB4F7;
+        font-size: 14px;
+        text-align: justify;
+        text-align-last: justify;
       }
+      
+      .info-value {
+        color: #E6F7FF;
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
       
       .card-footer {
         padding: 8px 16px; // 减小底部内边距
