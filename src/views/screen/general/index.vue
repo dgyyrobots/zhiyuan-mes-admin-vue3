@@ -57,7 +57,7 @@ import MonthlySalesChart from './components/MonthlySalesChart.vue'
 import MonthlyProductionChart from './components/MonthlyProductionChart.vue'
 import EmergencyOrderTracker from './components/EmergencyOrderTracker.vue'
 import ProductionTargets from './components/ProductionTargets.vue'
-import { useI18n } from 'vue-i18n'
+import { useI18n } from '/@/hooks/web/useI18n'
 // 获取容器引用
 const screenContainer = ref()
 const { t } = useI18n()

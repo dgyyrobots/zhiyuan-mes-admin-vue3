@@ -102,7 +102,7 @@
   
   <script setup>
   import { ref, onMounted, onUnmounted } from 'vue'
-  import { useI18n } from 'vue-i18n'
+  import { useI18n } from '/@/hooks/web/useI18n'
   import { CountTo } from 'vue3-count-to'
   // 引入API
   import { getMainData } from '@/api/screen/general/index'

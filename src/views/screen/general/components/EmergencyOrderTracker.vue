@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { useI18n } from 'vue-i18n'
+import { useI18n } from '/@/hooks/web/useI18n'
 import { ref, onMounted, onUnmounted } from 'vue'
 import jumpdetailIcon from '@/assets/screen/icon_svg/jumpd.svg';
 // 引入详情弹框组件

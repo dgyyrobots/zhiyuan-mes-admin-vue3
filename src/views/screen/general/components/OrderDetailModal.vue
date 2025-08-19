@@ -78,7 +78,7 @@
   
   <script setup>
   import { ref, watch } from 'vue'
-  import { useI18n } from 'vue-i18n'
+  import { useI18n } from '/@/hooks/web/useI18n'
   // 引入API
   import { getEmergencyOrderTrackingDetail } from '@/api/screen/general/index'
   

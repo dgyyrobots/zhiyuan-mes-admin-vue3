@@ -51,7 +51,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { useI18n } from '/@/hooks/web/useI18n'
 import { getBrandList } from '@/api/screen/general/index'
 
 const { t } = useI18n()
