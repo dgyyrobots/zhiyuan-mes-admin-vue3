@@ -47,9 +47,12 @@
       title="账号设置"
       width="650px"
     >
-      <el-form :model="settingForm" label-width="80px">
+      <el-form :model="settingForm" label-width="80px" autocomplete="off">
+          <!-- 隐藏的假输入框,防止浏览器自动填充账号密码 -->
+        <input type="text" style="display: none;" />
+        <input type="password" style="display: none;" />
         <el-form-item label="账号">
-          <el-input v-model="settingForm.userName" placeholder="请输入账号"  :disabled="currentItem.systemName==='集团ERP系统'"/>
+          <el-input v-model="settingForm.userName" placeholder="请输入账号"  :disabled="currentItem.systemName==='集团ERP系统'" autocomplete="off"   :name="'username_' + Math.random().toString(36).substr(2, 9)"/>
           <span class="tips" v-if="currentItem.systemName==='集团企业邮箱'">提示: 请输入正确的邮箱前缀；如 test@amvig.com.cn，需输入test</span>
         </el-form-item>
         <el-form-item v-if="currentItem?.systemName === '集团ERP系统'" label="租户">
@@ -59,6 +62,8 @@
             clearable
             filterable
             style="width: 100%"
+            autocomplete="off"
+            name="tenant-select-no-autofill"
           >
             <el-option
               v-for="item in tenantOptions"
@@ -72,6 +77,7 @@
           <el-input 
             v-model="settingForm.password" 
             :type="passwordVisible ? 'text' : 'password'" 
+            autocomplete="new-password"
             placeholder="请输入密码">
             <template #suffix>
               <el-icon 

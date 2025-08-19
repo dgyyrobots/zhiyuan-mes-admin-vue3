@@ -7,6 +7,7 @@
     class="login-form"
     label-position="top"
     label-width="120px"
+    autocomplete="off"
     size="large"
   >
     <el-row style="margin-right: -10px; margin-left: -10px">
@@ -16,6 +17,9 @@
         </el-form-item>
       </el-col>
       <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
+        <!-- 隐藏的假输入框,防止浏览器自动填充账号密码 -->
+        <input type="text" style="display: none;" />
+        <input type="password" style="display: none;" />
         <el-form-item v-if="loginData.tenantEnable === 'true'" prop="tenantName">
           <!-- <el-input
             v-model="loginData.loginForm.tenantName"
@@ -29,6 +33,8 @@
           placeholder="请选择租户名称"
           clearable
           filterable
+          autocomplete="off"
+          name="tenant-select-no-autofill"
         >
           <el-option
             v-for="(item) in tenantOptions"
@@ -45,6 +51,8 @@
             v-model="loginData.loginForm.username"
             :placeholder="t('login.usernamePlaceholder')"
             :prefix-icon="iconAvatar"
+            autocomplete="off"
+            :name="'username_' + Math.random().toString(36).substr(2, 9)"
           />
         </el-form-item>
       </el-col>
@@ -54,6 +62,7 @@
             v-model="loginData.loginForm.password"
             :placeholder="t('login.passwordPlaceholder')"
             :prefix-icon="iconLock"
+            autocomplete="new-password"
             show-password
             type="password"
             @keyup.enter="getCode()"
