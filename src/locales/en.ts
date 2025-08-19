@@ -503,6 +503,8 @@ export default {
       month: 'Month',
       quantity: 'Quantity (10K Boxes)',
       ratio: 'Ratio',
+      // 月份数组
+      months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       // Common status
       noData: 'No Data',
       loading: 'Loading',

@@ -14,10 +14,11 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import * as echarts from 'echarts'
 import { useI18n } from '/@/hooks/web/useI18n'
-
+import { useLocaleStoreWithOut } from '@/store/modules/locale'
 import { getOutputOrderTracking } from '@/api/screen/general/index'
 // 图表引用
 const chartRef = ref(null)
+const localeStore = useLocaleStoreWithOut()
 let chart = null
 const { t } = useI18n()
 // 图表数据
@@ -113,7 +114,8 @@ const updateChart = () => {
         axisLabel: {
           color: '#fff',
           fontSize: 12,
-          formatter: '{value}'
+          formatter: '{value}',
+          margin: 15 
         }
       },
       {
@@ -235,6 +237,28 @@ const handleResize = () => {
   chart?.resize()
 }
 
+// 国际化月份格式化函数
+const formatMonthWithLocale = (monthNumber) => {
+  const currentLang = localeStore.getCurrentLocale.lang
+  
+  // 获取月份数组
+  const months = t('dashboard.generalManager.months')
+  
+  // 如果有月份数组且索引有效，使用数组中的值
+  if (Array.isArray(months) && months[monthNumber - 1]) {
+    return months[monthNumber - 1]
+  }
+  
+  // 回退方案：根据语言返回不同格式
+  if (currentLang === 'en') {
+    const englishMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    return englishMonths[monthNumber - 1] || `Month ${monthNumber}`
+  } else {
+    // 默认中文
+    return `${monthNumber}月`
+  }
+}
 // 模拟数据，实际项目中应该从API获取
 const fetchData = async () => {
   try {
@@ -285,7 +309,7 @@ const fetchData = async () => {
     }))
     
     // 设置图表数据
-    chartData.value.xAxis = processedData.map(item => item.month + '月')
+    chartData.value.xAxis = processedData.map(item => formatMonthWithLocale(parseInt(item.month)))
     chartData.value.targetData = processedData.map(item => item.target)
     chartData.value.actualData = processedData.map(item => item.actual)
     chartData.value.completionRateData = processedData.map(item => parseFloat(item.completionRate.toFixed(2)))
