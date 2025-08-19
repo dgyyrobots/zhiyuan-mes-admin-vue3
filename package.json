@@ -1,6 +1,6 @@
 {
   "name": "yudao-ui-admin-vue3",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "基于vue3、vite4、element-plus、typesScript",
   "author": "xingyu",
   "private": false,
