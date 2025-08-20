@@ -35,7 +35,7 @@
           </div>
           <div class="card-name">{{ item.systemName }}</div>
         </div>
-        <div class="card-setting" @click.stop="openSettingDialog(item)">
+        <div class="card-setting" @click.stop="openSettingDialog(item)" v-if="item.systemName !== '智源MES'">
           <Icon icon="ep:setting" :size="16" />
         </div>
       </div>
@@ -206,14 +206,16 @@ const openUrl = async (item: CardItem) => {
   
   // 设置loading状态
   setCardLoading(item.id, true);
+  const baseParams = {
+    inside: networkType.value === '内网',
+    id: item.id,
+    systemName:item.systemName
+  };
   
   try {
     switch (item.systemName) {
       case '澳美MES':
-        const accessToken = await SsoSystemApi.getSsoSystemToken({
-          inside: networkType.value==='内网'?true:false,
-          id:item.id
-        });
+        const accessToken = await SsoSystemApi.getSsoSystemToken(baseParams);
         if (accessToken) {
           window.open(`${url}login?tenant-id=${158}&token=${accessToken}`, '_blank');
         } else {
@@ -222,10 +224,7 @@ const openUrl = async (item: CardItem) => {
         break;
 
       case '智源MES':
-        const zyres = await SsoSystemApi.getSsoSystemToken({
-          inside: networkType.value==='内网'?true:false,
-          id:item.id
-        });
+        const zyres = await SsoSystemApi.getSsoSystemToken(baseParams);
         if (zyres) {
           window.open(`${url}outside/oauth_login/action:login/access_token:` + zyres, "_blank");
         } else {
@@ -234,10 +233,7 @@ const openUrl = async (item: CardItem) => {
         break;
 
       case '东合MES':
-        const dhres = await SsoSystemApi.getSsoSystemToken({
-          inside: networkType.value==='内网'?true:false,
-          id:item.id
-        });
+        const dhres = await SsoSystemApi.getSsoSystemToken(baseParams);
         if (dhres) {
           window.open(`${url}outside/oauth_login/action:login/access_token:` + dhres, "_blank");
         } else {
@@ -246,10 +242,7 @@ const openUrl = async (item: CardItem) => {
         break;
 
       case '智源HR':
-        const hrres = await SsoSystemApi.getSsoSystemToken({
-          inside: networkType.value==='内网'?true:false,
-          id:item.id
-        });
+        const hrres = await SsoSystemApi.getSsoSystemToken(baseParams);
         if (hrres) {
           window.open(`${window.location.origin}/hrAutoLogin?encJsonData=${encodeURIComponent(hrres)}`, '_blank');
         } else {
@@ -258,10 +251,7 @@ const openUrl = async (item: CardItem) => {
         break;
 
       case '集团OA系统':
-        const oares = await SsoSystemApi.getSsoSystemToken({
-          inside: networkType.value==='内网'?true:false,
-          id:item.id
-        });
+        const oares = await SsoSystemApi.getSsoSystemToken(baseParams);
         if (oares) {
           window.open(`${window.location.origin}/amAutoLogin?logininfo=${oares}`, '_blank');
         } else {
@@ -270,10 +260,7 @@ const openUrl = async (item: CardItem) => {
         break;
 
       case '集团企业邮箱':
-        const emailres = await SsoSystemApi.getSsoSystemToken({
-          inside: networkType.value==='内网'?true:false,
-          id:item.id
-        });
+        const emailres = await SsoSystemApi.getSsoSystemToken(baseParams);
         if (emailres) {
           window.open(`https://entryhz.qiye.163.com/login/ssoLogin?sso_token=${emailres}&lang=0`, '_blank');
         } else {
@@ -283,15 +270,10 @@ const openUrl = async (item: CardItem) => {
 
 
         case '集团ERP系统':
-        const ERP_res = await SsoSystemApi.getSsoSystemToken({
-          inside: networkType.value==='内网'?true:false,
-          id:item.id
-        });
-        console.log(typeof ERP_res==='string','typeof ERP_res')
+        const ERP_res = await SsoSystemApi.getSsoSystemToken(baseParams);
         if(ERP_res && typeof ERP_res==='string'){
           const erpObj = JSON.parse(ERP_res);
           const erp_url = erpObj.payload.std_data.parameter.url
-          console.log(erp_url,'erp_url')
           window.open(`${erp_url}`, '_blank');
         }
         break;
