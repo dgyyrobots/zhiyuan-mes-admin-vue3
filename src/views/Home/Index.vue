@@ -331,7 +331,7 @@ const saveSettings = async () => {
       const res = await SsoUsersApi.addOrUpdateSsoUsers(params);
       
       if (res && res.code=== 0) {
-        ElMessage.success('账号密码保存成功');
+        ElMessage.success('保存成功!');
         // 更新当前项的账号密码
         if (currentItem.value) {
           currentItem.value.userName = settingForm.userName;
@@ -340,7 +340,7 @@ const saveSettings = async () => {
         // 重新请求列表数据，刷新页面
         await getList();
       } else {
-        ElMessage.error(res.msg || '保存失败');
+        ElMessage.error(res.msg || '保存失败!');
       }
     } catch (error) {
       console.error('保存账号密码出错:', error);
