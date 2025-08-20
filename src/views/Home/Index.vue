@@ -35,7 +35,7 @@
           </div>
           <div class="card-name">{{ item.systemName }}</div>
         </div>
-        <div class="card-setting" @click.stop="openSettingDialog(item)" v-if="item.systemName !== '智源MES'">
+        <div class="card-setting" @click.stop="openSettingDialog(item)" v-if="item.systemName !== '智源MES' && item.systemName !== '东合MES'">
           <Icon icon="ep:setting" :size="16" />
         </div>
       </div>
