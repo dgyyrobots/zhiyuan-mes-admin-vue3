@@ -35,3 +35,31 @@
     border-left-color: var(--el-color-primary);
   }
 }
+
+
+// 修复 el-select 下拉框层级问题
+.el-select-dropdown {
+  z-index: 9999 !important;
+}
+
+// 修复所有 popper 组件的层级问题
+.el-popper {
+  z-index: 9999 !important;
+}
+
+// 针对 el-select 下拉框的具体样式
+.el-select-dropdown,
+.el-select-dropdown .el-scrollbar,
+.el-select-dropdown .el-scrollbar__wrap,
+.el-select-dropdown .el-scrollbar__view {
+  z-index: 9999 !important;
+}
+
+// 确保所有弹出层组件都有足够高的层级
+.el-popper.is-pure,
+.el-popper[data-popper-placement],
+.el-tooltip__popper,
+.el-dropdown__popper,
+.el-autocomplete-suggestion {
+  z-index: 9999 !important;
+}

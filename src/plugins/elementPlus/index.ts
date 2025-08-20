@@ -14,4 +14,9 @@ export const setupElementPlus = (app: App<Element>) => {
   components.forEach((component) => {
     app.component(component.name, component)
   })
+  
+  // 设置全局 popper z-index，确保下拉框在弹框之上
+  app.config.globalProperties.$ELEMENT = {
+    zIndex: 3000 // 设置为高于 Dialog 的值
+  }
 }
