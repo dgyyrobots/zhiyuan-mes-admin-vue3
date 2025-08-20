@@ -15,7 +15,7 @@
           v-model="formData.systemId" 
           placeholder="请选择单点登录系统"
           style="width: 100%"
-          disabled
+          :disabled="formType!=='create'"
         >
           <el-option
             v-for="item in systemOptions"
