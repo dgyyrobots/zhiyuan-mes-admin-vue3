@@ -9,8 +9,8 @@
     >
       <el-row>
         <el-col :span="12">
-          <el-form-item label="用户昵称" prop="nickname">
-            <el-input v-model="formData.nickname" placeholder="请输入用户昵称" />
+          <el-form-item label="用户姓名" prop="nickname">
+            <el-input v-model="formData.nickname" placeholder="请输入用户姓名" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -40,8 +40,8 @@
       </el-row>
       <el-row>
         <el-col :span="12">
-          <el-form-item v-if="formData.id === undefined" label="用户名称" prop="username">
-            <el-input v-model="formData.username" placeholder="请输入用户名称" />
+          <el-form-item v-if="formData.id === undefined" label="用户账号" prop="username">
+            <el-input v-model="formData.username" placeholder="请输入用户账号" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -128,8 +128,8 @@ const formData = ref({
   roleIds: []
 })
 const formRules = reactive<FormRules>({
-  username: [{ required: true, message: '用户名称不能为空', trigger: 'blur' }],
-  nickname: [{ required: true, message: '用户昵称不能为空', trigger: 'blur' }],
+  username: [{ required: true, message: '用户账号不能为空', trigger: 'blur' }],
+  nickname: [{ required: true, message: '用户姓名不能为空', trigger: 'blur' }],
   password: [{ required: true, message: '用户密码不能为空', trigger: 'blur' }],
   email: [
     {

@@ -20,10 +20,20 @@
           :inline="true"
           label-width="68px"
         >
-          <el-form-item label="用户名称" prop="username">
+          <el-form-item label="用户账号" prop="username">
             <el-input
               v-model="queryParams.username"
-              placeholder="请输入用户名称"
+              placeholder="请输入用户账号"
+              clearable
+              @keyup.enter="handleQuery"
+              class="!w-240px"
+            />
+          </el-form-item>
+
+           <el-form-item label="用户姓名" prop="nickname">
+            <el-input
+              v-model="queryParams.nickname"
+              placeholder="请输入用户姓名"
               clearable
               @keyup.enter="handleQuery"
               class="!w-240px"
@@ -98,13 +108,13 @@
         <el-table v-loading="loading" :data="list">
           <el-table-column label="用户编号" align="center" key="id" prop="id" />
           <el-table-column
-            label="用户名称"
+            label="用户账号"
             align="center"
             prop="username"
             :show-overflow-tooltip="true"
           />
           <el-table-column
-            label="用户昵称"
+            label="用户姓名"
             align="center"
             prop="nickname"
             :show-overflow-tooltip="true"
@@ -223,6 +233,7 @@ const queryParams = reactive({
   pageNo: 1,
   pageSize: 10,
   username: undefined,
+  nickname: undefined,
   mobile: undefined,
   status: undefined,
   deptId: undefined,

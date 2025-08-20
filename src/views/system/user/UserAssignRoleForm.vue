@@ -1,10 +1,10 @@
 <template>
   <Dialog v-model="dialogVisible" title="分配角色">
     <el-form ref="formRef" v-loading="formLoading" :model="formData" label-width="80px">
-      <el-form-item label="用户名称">
+      <el-form-item label="用户账号">
         <el-input v-model="formData.username" :disabled="true" />
       </el-form-item>
-      <el-form-item label="用户昵称">
+      <el-form-item label="用户姓名">
         <el-input v-model="formData.nickname" :disabled="true" />
       </el-form-item>
       <el-form-item label="角色">
