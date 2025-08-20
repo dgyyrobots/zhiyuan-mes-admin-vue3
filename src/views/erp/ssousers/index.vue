@@ -41,7 +41,7 @@
           class="!w-240px"
         />
       </el-form-item>
-      <el-form-item label="密码" prop="password">
+      <!-- <el-form-item label="密码" prop="password">
         <el-input
           v-model="queryParams.password"
           placeholder="请输入密码"
@@ -49,7 +49,7 @@
           @keyup.enter="handleQuery"
           class="!w-240px"
         />
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="创建时间" prop="createTime">
         <el-date-picker
           v-model="queryParams.createTime"
@@ -113,7 +113,7 @@
         </template>
       </el-table-column>
       <el-table-column label="用户名称" align="center" prop="userName" />
-      <el-table-column label="密码" align="center" prop="password" />
+      <!-- <el-table-column label="密码" align="center" prop="password" /> -->
       <el-table-column
         label="创建时间"
         align="center"
