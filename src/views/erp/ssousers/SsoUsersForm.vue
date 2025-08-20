@@ -28,9 +28,9 @@
       <el-form-item label="用户名称" prop="userName">
         <el-input v-model="formData.userName" placeholder="请输入用户名称" />
       </el-form-item>
-      <el-form-item label="密码" prop="password">
+      <!-- <el-form-item label="密码" prop="password">
         <el-input v-model="formData.password" placeholder="请输入密码" />
-      </el-form-item>
+      </el-form-item> -->
     </el-form>
     <template #footer>
       <el-button @click="submitForm" type="primary" :disabled="formLoading">确 定</el-button>
