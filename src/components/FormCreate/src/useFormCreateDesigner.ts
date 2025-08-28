@@ -91,6 +91,83 @@ const createUserSelectRule = () => {
   }
 }
 
+/**
+ * 创建带默认当前日期的日期选择器规则
+ */
+const createDefaultDatePickerRule = () => {
+  // 获取当前日期
+  const getCurrentDate = () => {
+    return new Date().toISOString().split('T')[0] // 格式化为 YYYY-MM-DD
+  }
+  
+  return {
+    icon: 'icon-calendar',
+    label: '默认当前日期选择器',
+    name: 'DefaultDatePicker',
+    event: ['change', 'blur', 'focus'],
+    rule() {
+      const currentDate = getCurrentDate()
+      return {
+        type: 'DatePicker',
+        field: generateUUID(),
+        title: '默认当前日期选择器',
+        info: '',
+        $required: false,
+        value: currentDate, // 设置默认值为当前日期
+        props: {
+          type: 'date',
+          valueFormat: 'YYYY-MM-DD',
+          placeholder: '请选择日期',
+          clearable: true
+        }
+      }
+    },
+    props(_, { t }) {
+      return localeProps(t, 'DefaultDatePicker.props', [
+        makeRequiredRule(),
+        {
+          type: 'switch',
+          field: 'clearable',
+          title: '可清空',
+          value: true
+        },
+        {
+          type: 'select',
+          field: 'type',
+          title: '日期类型',
+          value: 'date',
+          options: [
+            { label: '日期', value: 'date' },
+            { label: '日期时间', value: 'datetime' }
+          ]
+        },
+        {
+          type: 'input',
+          field: 'valueFormat',
+          title: '值格式',
+          value: 'YYYY-MM-DD'
+        },
+        {
+          type: 'input',
+          field: 'placeholder',
+          title: '占位符',
+          value: '请选择日期'
+        },
+        {
+          type: 'switch',
+          field: 'disabled',
+          title: '是否禁用'
+        },
+        {
+          type: 'switch',
+          field: 'readonly',
+          title: '是否只读'
+        }
+      ])
+    }
+  }
+}
+
 export const useFormCreateDesigner = async (designer: Ref) => {
   const editorRule = useEditorRule()
   const uploadFileRule = useUploadFileRule()
@@ -120,6 +197,8 @@ export const useFormCreateDesigner = async (designer: Ref) => {
 
   // 使用自定义的用户选择器规则
   const userSelectRule = createUserSelectRule()
+  // 添加默认当前日期选择器规则
+  const defaultDatePickerRule = createDefaultDatePickerRule()
   const deptSelectRule = useSelectRule({
     name: 'DeptSelect',
     label: '部门选择器',
@@ -142,7 +221,7 @@ export const useFormCreateDesigner = async (designer: Ref) => {
     // designer.value?.removeMenuItem('select')
     // designer.value?.removeMenuItem('radio')
     // designer.value?.removeMenuItem('checkbox')
-    const components = [userSelectRule, deptSelectRule, dictSelectRule, apiSelectRule0]
+    const components = [userSelectRule, defaultDatePickerRule, deptSelectRule, dictSelectRule, apiSelectRule0]
     const menu: Menu = {
       name: 'system',
       title: '系统字段',
