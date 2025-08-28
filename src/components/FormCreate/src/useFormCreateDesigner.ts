@@ -9,6 +9,11 @@ import {
 import { Ref } from 'vue'
 import { Menu } from '@/components/FormCreate/src/type'
 import { apiSelectRule } from '@/components/FormCreate/src/config/selectRule'
+import { useUserStore } from '@/store/modules/user'
+import { CACHE_KEY, useCache } from '@/hooks/web/useCache'
+import { generateUUID } from '@/utils'
+import { localeProps, makeRequiredRule } from '@/components/FormCreate/src/utils'
+import { selectRule } from '@/components/FormCreate/src/config/selectRule'
 
 /**
  * 表单设计器增强 hook
@@ -21,6 +26,71 @@ import { apiSelectRule } from '@/components/FormCreate/src/config/selectRule'
  * - 部门选择器
  * - 富文本
  */
+/**
+ * 创建带默认当前用户的用户选择器规则
+ */
+const createUserSelectRule = () => {
+  const { wsCache } = useCache()
+  const userStore = useUserStore()
+  
+  // 获取当前用户ID
+  const getCurrentUserId = () => {
+    
+    // 优先从store获取
+    if (userStore.getUser && userStore.getUser.id) {
+      return userStore.getUser.id
+    }
+    
+    // 从缓存获取
+    const userInfo = wsCache.get(CACHE_KEY.USER)
+    if (userInfo && userInfo.user && userInfo.user.id) {
+      return userInfo.user.id
+    }
+    
+    return null
+  }
+  
+  return {
+    icon: 'icon-user-o',
+    label: '用户选择器',
+    name: 'UserSelect',
+    event: ['click', 'change', 'visibleChange', 'clear', 'blur', 'focus'],
+    rule() {
+      const currentUserId = getCurrentUserId()
+      return {
+        type: 'UserSelect',
+        field: generateUUID(),
+        title: '用户选择器',
+        info: '',
+        $required: false,
+        value: currentUserId, // 设置默认值为当前用户ID
+        // 添加表单配置，确保在预览和填写时都显示默认值
+        props: {
+          defaultValue: currentUserId // 额外的默认值配置
+        }
+      }
+    },
+    props(_, { t }) {
+      return localeProps(t, 'UserSelect.props', [
+        makeRequiredRule(),
+        {
+          type: 'switch',
+          field: 'defaultCurrentUser',
+          title: '默认选中当前用户',
+          value: true
+        },
+        {
+          type: 'switch',
+          field: 'clearable',
+          title: '可清空',
+          value: true
+        },
+        ...selectRule
+      ])
+    }
+  }
+}
+
 export const useFormCreateDesigner = async (designer: Ref) => {
   const editorRule = useEditorRule()
   const uploadFileRule = useUploadFileRule()
@@ -48,11 +118,8 @@ export const useFormCreateDesigner = async (designer: Ref) => {
     })
   }
 
-  const userSelectRule = useSelectRule({
-    name: 'UserSelect',
-    label: '用户选择器',
-    icon: 'icon-user-o'
-  })
+  // 使用自定义的用户选择器规则
+  const userSelectRule = createUserSelectRule()
   const deptSelectRule = useSelectRule({
     name: 'DeptSelect',
     label: '部门选择器',

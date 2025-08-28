@@ -67,13 +67,34 @@ import { UploadFile, UploadImg, UploadImgs } from '@/components/UploadFile'
 import { useApiSelect } from '@/components/FormCreate'
 import { Editor } from '@/components/Editor'
 import DictSelect from '@/components/FormCreate/src/components/DictSelect.vue'
-
-const UserSelect = useApiSelect({
-  name: 'UserSelect',
-  labelField: 'nickname',
-  valueField: 'id',
-  url: '/system/user/simple-list'
-})
+import { useCache, CACHE_KEY } from '@/hooks/web/useCache'
+const { wsCache } = useCache()
+// 创建带默认值的 UserSelect
+const createUserSelectWithDefault = () => {
+  return useApiSelect({
+    name: 'UserSelect',
+    labelField: 'nickname',
+    valueField: 'id',
+    url: '/system/user/simple-list',
+    // 可以在这里添加默认值逻辑
+    defaultValue: () => {
+     const currentUser = getCurrentUserFromCache()
+      return currentUser?.id || null
+    }
+  })
+}
+// 获取当前用户信息
+const getCurrentUserFromCache = () => {
+  const userInfo = wsCache.get(CACHE_KEY.USER)
+  if (userInfo && userInfo.user) {
+    return {
+      id: userInfo.user.id,
+      nickname: userInfo.user.nickname
+    }
+  }
+  return null
+}
+const UserSelect = createUserSelectWithDefault()
 const DeptSelect = useApiSelect({
   name: 'DeptSelect',
   labelField: 'name',
