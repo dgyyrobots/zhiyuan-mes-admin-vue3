@@ -133,6 +133,7 @@ const initProcessInfo = async (row: any, formVariables?: any) => {
         delete formVariables[key]
       }
     }
+    console.log(detailForm, row.formConf, row.formFields, formVariables , '渲染表单传递的数据')
     setConfAndFields2(detailForm, row.formConf, row.formFields, formVariables)
 
     await nextTick()

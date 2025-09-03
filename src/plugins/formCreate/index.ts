@@ -70,19 +70,27 @@ import DictSelect from '@/components/FormCreate/src/components/DictSelect.vue'
 import { useCache, CACHE_KEY } from '@/hooks/web/useCache'
 const { wsCache } = useCache()
 // 创建带默认值的 UserSelect
-const createUserSelectWithDefault = () => {
-  return useApiSelect({
-    name: 'UserSelect',
-    labelField: 'nickname',
-    valueField: 'id',
-    url: '/system/user/simple-list',
-    // 可以在这里添加默认值逻辑
-    defaultValue: () => {
-     const currentUser = getCurrentUserFromCache()
-      return currentUser?.id || null
-    }
-  })
-}
+// const createUserSelectWithDefault = () => {
+//   return useApiSelect({
+//     name: 'UserSelect',
+//     labelField: 'nickname',
+//     valueField: 'id',
+//     url: '/system/user/simple-list',
+//     // 可以在这里添加默认值逻辑
+//     defaultValue: () => {
+//      const currentUser = getCurrentUserFromCache()
+//       return currentUser?.id || null
+//     }
+//   })
+// }
+// 创建普通的 UserSelect（不带默认值）
+
+const UserSelect = useApiSelect({
+  name: 'UserSelect',
+  labelField: 'nickname',
+  valueField: 'id',
+  url: '/system/user/simple-list'
+})
 // 获取当前用户信息
 const getCurrentUserFromCache = () => {
   const userInfo = wsCache.get(CACHE_KEY.USER)
@@ -92,9 +100,12 @@ const getCurrentUserFromCache = () => {
       nickname: userInfo.user.nickname
     }
   }
+
+  console.log(userInfo,'userInfo')
   return null
 }
-const UserSelect = createUserSelectWithDefault()
+// const UserSelect = createUserSelectWithDefault()
+
 const DeptSelect = useApiSelect({
   name: 'DeptSelect',
   labelField: 'name',

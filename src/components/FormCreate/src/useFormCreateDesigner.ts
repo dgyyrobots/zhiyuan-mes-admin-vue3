@@ -56,18 +56,19 @@ const createUserSelectRule = () => {
     name: 'UserSelect',
     event: ['click', 'change', 'visibleChange', 'clear', 'blur', 'focus'],
     rule() {
-      const currentUserId = getCurrentUserId()
+      // const currentUserId = getCurrentUserId()
       return {
         type: 'UserSelect',
         field: generateUUID(),
         title: '用户选择器',
         info: '',
         $required: false,
-        value: currentUserId, // 设置默认值为当前用户ID
-        // 添加表单配置，确保在预览和填写时都显示默认值
-        props: {
-          defaultValue: currentUserId // 额外的默认值配置
-        }
+         // 移除默认值设置
+        // value: currentUserId, // 设置默认值为当前用户ID
+        // // 添加表单配置，确保在预览和填写时都显示默认值
+        // props: {
+        //   defaultValue: currentUserId // 额外的默认值配置
+        // }
       }
     },
     props(_, { t }) {
@@ -77,7 +78,7 @@ const createUserSelectRule = () => {
           type: 'switch',
           field: 'defaultCurrentUser',
           title: '默认选中当前用户',
-          value: true
+          value: false
         },
         {
           type: 'switch',
