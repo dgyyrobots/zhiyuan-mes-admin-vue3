@@ -233,4 +233,9 @@ onMounted(async () => {
   // 获取流程定义列表
   processDefinitionList.value = await DefinitionApi.getSimpleProcessDefinitionList()
 })
+
+/** 页面激活时重新加载数据 */
+onActivated(async () => {
+  await getList()
+})
 </script>
