@@ -11,8 +11,8 @@
           <el-tab-pane label="表单填写" name="form">
             <div class="form-scroll-area" v-loading="processInstanceStartLoading">
               <el-scrollbar>
-                <el-row>
-                  <el-col :span="17">
+                <el-row :gutter="20">
+                  <el-col :span="19">
                     <form-create
                       :rule="detailForm.rule"
                       v-model:api="fApi"
@@ -22,7 +22,7 @@
                     />
                   </el-col>
 
-                  <el-col :span="6" :offset="1">
+                  <el-col :span="5">
                     <!-- 流程时间线 -->
                     <ProcessInstanceTimeline
                       ref="timelineRef"
