@@ -41,8 +41,8 @@
           <el-tab-pane label="审批详情" name="form">
             <div class="form-scroll-area">
               <el-scrollbar>
-                <el-row>
-                  <el-col :span="17" class="!flex !flex-col formCol">
+                <el-row :gutter="20">
+                  <el-col :span="19" class="!flex !flex-col formCol">
                     <!-- 表单信息 -->
                     <div
                       v-loading="processInstanceLoading"
@@ -63,7 +63,7 @@
                       </div>
                     </div>
                   </el-col>
-                  <el-col :span="7">
+                  <el-col :span="5">
                     <!-- 审批记录时间线 -->
                     <ProcessInstanceTimeline :activity-nodes="activityNodes" />
                   </el-col>
@@ -321,6 +321,7 @@ $process-header-height: 194px;
     100vh - var(--top-tool-height) - var(--tags-view-height) - var(--app-footer-height) - 35px
   );
   overflow: auto;
+
 
   .form-scroll-area {
     display: flex;
